@@ -1,0 +1,65 @@
+.book-form {
+  max-width: 800px;
+
+  .page-header {
+    margin-bottom: 24px;
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      h1 {
+        font-size: 24px;
+        font-weight: 700;
+
+        @media (max-width: 600px) { font-size: 18px; }
+      }
+    }
+  }
+
+  .loading {
+    display: flex;
+    justify-content: center;
+    padding: 60px;
+  }
+
+  .form-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+
+    @media (max-width: 600px) { padding: 16px; }
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+
+    .col-2 {
+      grid-column: span 2;
+
+      @media (max-width: 600px) { grid-column: span 1; }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+
+    @media (max-width: 600px) {
+      flex-direction: column;
+
+      button, a { width: 100%; }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+<aside class="sidebar" [class.closed]="!isOpen">
+  <div class="sidebar-logo">
+    <mat-icon>local_library</mat-icon>
+    <span class="logo-text">LibraryApp</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    @for (item of visibleItems; track item.route) {
+      
+        class="nav-item"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <mat-icon>account_circle</mat-icon>
+      <div class="user-details">
+        <span class="user-name">{{ auth.currentUser()?.name }}</span>
+        <span class="user-role">{{ auth.currentUser()?.role }}</span>
+      </div>
+    </div>
+  </div>
+</aside>

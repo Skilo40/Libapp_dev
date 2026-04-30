@@ -1,0 +1,76 @@
+<div class="dashboard">
+  <div class="page-header">
+    <h1>Дашборд</h1>
+    <span class="date">{{ today | date:'EEEE, d MMMM yyyy' : '' : 'uk' }}</span>
+  </div>
+
+  @if (loading) {
+    <div class="loading">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon purple">
+          <mat-icon>menu_book</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats?.totalBooks ?? 0 }}</h3>
+          <p>Всього книг</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <mat-icon>people</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats?.totalMembers ?? 0 }}</h3>
+          <p>Активних читачів</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon orange">
+          <mat-icon>swap_horiz</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats?.activeLoans ?? 0 }}</h3>
+          <p>Активних позик</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon red">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats?.overdueLoans ?? 0 }}</h3>
+          <p>Прострочених</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <h2>Швидкі дії</h2>
+      <div class="actions-grid">
+        <a routerLink="/loans/new" class="action-card">
+          <mat-icon>add_circle</mat-icon>
+          <span>Видати книгу</span>
+        </a>
+        <a routerLink="/books/new" class="action-card">
+          <mat-icon>library_add</mat-icon>
+          <span>Додати книгу</span>
+        </a>
+        <a routerLink="/members/new" class="action-card">
+          <mat-icon>person_add</mat-icon>
+          <span>Новий читач</span>
+        </a>
+        <a routerLink="/loans" class="action-card">
+          <mat-icon>list_alt</mat-icon>
+          <span>Всі позики</span>
+        </a>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,47 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-header">
+      <mat-icon class="login-icon">local_library</mat-icon>
+      <h1>LibraryApp</h1>
+      <p>Система обліку бібліотеки</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="admin@library.com">
+        <mat-icon matSuffix>email</mat-icon>
+        @if (form.get('email')?.hasError('required')) {
+          <mat-error>Email обов'язковий</mat-error>
+        }
+        @if (form.get('email')?.hasError('email')) {
+          <mat-error>Невірний формат email</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Пароль</mat-label>
+        <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'">
+        <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        @if (form.get('password')?.hasError('required')) {
+          <mat-error>Пароль обов'язковий</mat-error>
+        }
+      </mat-form-field>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        class="login-btn"
+        [disabled]="loading || form.invalid">
+        @if (loading) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Увійти
+        }
+      </button>
+    </form>
+  </div>
+</div>

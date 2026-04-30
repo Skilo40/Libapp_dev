@@ -1,0 +1,76 @@
+<div class="book-list">
+  <div class="page-header">
+    <h1>Книги</h1>
+    <a mat-flat-button color="primary" routerLink="/books/new">
+      <mat-icon>add</mat-icon>
+      <span class="btn-label">Додати книгу</span>
+    </a>
+  </div>
+
+  <div class="filters">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Пошук книги</mat-label>
+      <input matInput [(ngModel)]="search" (keyup.enter)="onSearch()" placeholder="Назва, автор, ISBN...">
+      <button *ngIf="search" mat-icon-button matSuffix (click)="clearSearch()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-icon matSuffix *ngIf="!search">search</mat-icon>
+    </mat-form-field>
+
+    <button mat-stroked-button [class.active-filter]="filterAvailable" (click)="toggleAvailable()">
+      <mat-icon>check_circle</mat-icon>
+      <span class="btn-label">Доступні</span>
+    </button>
+
+    <button mat-stroked-button (click)="load()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="loading"><mat-spinner diameter="40" /></div>
+  } @else if (books.length === 0) {
+    <div class="empty">
+      <mat-icon>menu_book</mat-icon>
+      <p>Книги не знайдено</p>
+      <a mat-flat-button color="primary" routerLink="/books/new">Додати першу книгу</a>
+    </div>
+  } @else {
+    <div class="books-grid">
+      @for (book of books; track book._id) {
+        <div class="book-card">
+          <div class="book-cover">
+            <mat-icon>menu_book</mat-icon>
+          </div>
+          <div class="book-info">
+            <h3 class="book-title">{{ book.title }}</h3>
+            <p class="book-author">{{ book.author }}</p>
+            @if (book.genre) {
+              <span class="book-genre">{{ book.genre }}</span>
+            }
+            <div class="book-meta">
+              @if (book.year) {
+                <span><mat-icon>calendar_today</mat-icon>{{ book.year }}</span>
+              }
+              <span><mat-icon>tag</mat-icon>{{ book.isbn }}</span>
+            </div>
+            <div class="book-copies">
+              <span class="copies-badge" [class.available]="book.availableCopies > 0" [class.unavailable]="book.availableCopies === 0">
+                <mat-icon>{{ book.availableCopies > 0 ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ book.availableCopies }} / {{ book.totalCopies }} доступно
+              </span>
+            </div>
+          </div>
+          <div class="book-actions">
+            <a mat-icon-button [routerLink]="['/books', book._id, 'edit']" color="primary">
+              <mat-icon>edit</mat-icon>
+            </a>
+            <button mat-icon-button color="warn" (click)="delete(book)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
