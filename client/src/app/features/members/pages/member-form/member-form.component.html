@@ -1,1 +1,70 @@
-<p>member-form works!</p>
+<div class="member-form">
+  <div class="page-header">
+    <div class="header-left">
+      <a mat-icon-button routerLink="/members">
+        <mat-icon>arrow_back</mat-icon>
+      </a>
+      <h1>{{ isEdit ? 'Редагувати читача' : 'Новий читач' }}</h1>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <mat-spinner diameter="40" />
+  </div>
+
+  <div class="form-card" *ngIf="!loading">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Ім'я *</mat-label>
+          <input matInput formControlName="firstName">
+          <mat-error *ngIf="form.get('firstName')?.hasError('required')">
+            Ім'я обов'язкове
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Прізвище *</mat-label>
+          <input matInput formControlName="lastName">
+          <mat-error *ngIf="form.get('lastName')?.hasError('required')">
+            Прізвище обов'язкове
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-2">
+          <mat-label>Email *</mat-label>
+          <input matInput formControlName="email" type="email">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="form.get('email')?.hasError('required')">Email обов'язковий</mat-error>
+          <mat-error *ngIf="form.get('email')?.hasError('email')">Невірний формат email</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Телефон</mat-label>
+          <input matInput formControlName="phone" placeholder="+380...">
+          <mat-icon matSuffix>phone</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Адреса</mat-label>
+          <input matInput formControlName="address">
+          <mat-icon matSuffix>home</mat-icon>
+        </mat-form-field>
+
+        <div class="toggle-field col-2" *ngIf="isEdit">
+          <mat-slide-toggle formControlName="isActive" color="primary">
+            Активний читач
+          </mat-slide-toggle>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a mat-stroked-button routerLink="/members">Скасувати</a>
+        <button mat-flat-button color="primary" type="submit" [disabled]="saving || form.invalid">
+          <mat-spinner diameter="20" *ngIf="saving" />
+          <span *ngIf="!saving">{{ isEdit ? 'Зберегти зміни' : 'Додати читача' }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

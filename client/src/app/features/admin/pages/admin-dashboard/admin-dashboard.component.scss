@@ -1,0 +1,90 @@
+.admin-dashboard {
+  max-width: 1200px;
+
+  .page-header {
+    margin-bottom: 28px;
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      @media (max-width: 600px) { font-size: 20px; }
+    }
+  }
+
+  .loading {
+    display: flex;
+    justify-content: center;
+    padding: 60px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+
+    @media (max-width: 960px) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 600px) { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  }
+
+  .admin-sections {
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .sections-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+
+      @media (max-width: 960px) { grid-template-columns: 1fr; }
+    }
+
+    .section-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: all 0.2s;
+
+      &:hover {
+        box-shadow: var(--shadow-hover);
+        transform: translateY(-2px);
+      }
+
+      .section-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        mat-icon { font-size: 26px; width: 26px; height: 26px; }
+
+        &.purple { background: #f3e5f5; color: var(--primary); }
+        &.blue   { background: #e3f2fd; color: #1565c0; }
+        &.orange { background: #fff3e0; color: #e65100; }
+        &.green  { background: #e8f5e9; color: #2e7d32; }
+      }
+
+      .section-info {
+        flex: 1;
+
+        h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        p  { font-size: 13px; color: var(--text-secondary); }
+      }
+
+      .arrow { color: var(--text-secondary); }
+    }
+  }
+}

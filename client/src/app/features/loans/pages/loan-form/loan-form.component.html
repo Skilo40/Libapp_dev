@@ -1,1 +1,78 @@
-<p>loan-form works!</p>
+<div class="loan-form">
+  <div class="page-header">
+    <div class="header-left">
+      <a mat-icon-button routerLink="/loans">
+        <mat-icon>arrow_back</mat-icon>
+      </a>
+      <h1>Видача книги</h1>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-grid">
+
+        <mat-form-field appearance="outline" class="col-2">
+          <mat-label>Книга *</mat-label>
+          <mat-select formControlName="bookId">
+            <mat-option>
+              <input
+                placeholder="Пошук книги..."
+                (input)="filterBooks($any($event.target).value)"
+                style="width:100%; border:none; outline:none; padding: 8px;">
+            </mat-option>
+            <mat-option *ngFor="let book of filteredBooks" [value]="book._id">
+              {{ book.title }} — {{ book.author }}
+              <span style="color: #888; font-size: 12px;"> ({{ book.availableCopies }} дост.)</span>
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.get('bookId')?.hasError('required')">
+            Виберіть книгу
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-2">
+          <mat-label>Читач *</mat-label>
+          <mat-select formControlName="memberId">
+            <mat-option>
+              <input
+                placeholder="Пошук читача..."
+                (input)="filterMembers($any($event.target).value)"
+                style="width:100%; border:none; outline:none; padding: 8px;">
+            </mat-option>
+            <mat-option *ngFor="let member of filteredMembers" [value]="member._id">
+              {{ member.firstName }} {{ member.lastName }} — {{ member.email }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.get('memberId')?.hasError('required')">
+            Виберіть читача
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Дата повернення *</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="dueDate" [min]="minDate">
+          <mat-datepicker-toggle matSuffix [for]="picker" />
+          <mat-datepicker #picker />
+          <mat-error *ngIf="form.get('dueDate')?.hasError('required')">
+            Вкажіть дату повернення
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Примітки</mat-label>
+          <textarea matInput formControlName="notes" rows="2"></textarea>
+        </mat-form-field>
+
+      </div>
+
+      <div class="form-actions">
+        <a mat-stroked-button routerLink="/loans">Скасувати</a>
+        <button mat-flat-button color="primary" type="submit" [disabled]="saving || form.invalid">
+          <mat-spinner diameter="20" *ngIf="saving" />
+          <span *ngIf="!saving">Видати книгу</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

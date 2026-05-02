@@ -1,1 +1,104 @@
-<p>loan-list works!</p>
+<div class="loan-list">
+  <div class="page-header">
+    <h1>Позики</h1>
+    <a mat-flat-button color="primary" routerLink="/loans/new">
+      <mat-icon>add</mat-icon>
+      <span class="btn-label">Видати книгу</span>
+    </a>
+  </div>
+
+  <div class="filters">
+    <mat-form-field appearance="outline" class="status-filter">
+      <mat-label>Статус</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (ngModelChange)="load()">
+        <mat-option value="">Всі</mat-option>
+        <mat-option value="active">Активні</mat-option>
+        <mat-option value="returned">Повернені</mat-option>
+        <mat-option value="overdue">Прострочені</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-stroked-button (click)="load()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div class="stats-row">
+    <span class="total">Знайдено: <strong>{{ loans.length }}</strong></span>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <mat-spinner diameter="40" />
+  </div>
+
+  <div class="empty" *ngIf="!loading && loans.length === 0">
+    <mat-icon>swap_horiz</mat-icon>
+    <p>Позик не знайдено</p>
+    <a mat-flat-button color="primary" routerLink="/loans/new">Видати книгу</a>
+  </div>
+
+  <div class="loans-list" *ngIf="!loading && loans.length > 0">
+    <div class="loan-card" *ngFor="let loan of loans" [class.overdue]="getStatusClass(loan) === 'overdue'">
+
+      <div class="loan-book">
+        <div class="book-icon">
+          <mat-icon>menu_book</mat-icon>
+        </div>
+        <div class="book-details">
+          <h3>{{ loan.book.title }}</h3>
+          <p>{{ loan.book.author }}</p>
+          <span class="isbn">{{ loan.book.isbn }}</span>
+        </div>
+      </div>
+
+      <div class="loan-member">
+        <mat-icon>person</mat-icon>
+        <div>
+          <p class="member-name">{{ loan.member.firstName }} {{ loan.member.lastName }}</p>
+          <p class="member-email">{{ loan.member.email }}</p>
+        </div>
+      </div>
+
+      <div class="loan-dates">
+        <div class="date-item">
+          <mat-icon>login</mat-icon>
+          <div>
+            <span class="date-label">Видано</span>
+            <span class="date-value">{{ loan.issueDate | date:'dd.MM.yyyy' }}</span>
+          </div>
+        </div>
+        <div class="date-item">
+          <mat-icon>logout</mat-icon>
+          <div>
+            <span class="date-label">До</span>
+            <span class="date-value">{{ loan.dueDate | date:'dd.MM.yyyy' }}</span>
+          </div>
+        </div>
+        <div class="date-item" *ngIf="loan.returnDate">
+          <mat-icon>check_circle</mat-icon>
+          <div>
+            <span class="date-label">Повернено</span>
+            <span class="date-value">{{ loan.returnDate | date:'dd.MM.yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="loan-status">
+        <span class="status-badge" [ngClass]="getStatusClass(loan)">
+          {{ getStatusLabel(loan) }}
+        </span>
+      </div>
+
+      <div class="loan-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          *ngIf="loan.status === 'active' || loan.status === 'overdue'"
+          (click)="returnBook(loan)">
+          <mat-icon>assignment_return</mat-icon>
+          <span class="btn-label">Повернути</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

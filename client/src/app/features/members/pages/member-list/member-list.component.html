@@ -1,1 +1,81 @@
-<p>member-list works!</p>
+<div class="member-list">
+  <div class="page-header">
+    <h1>Читачі</h1>
+    <a mat-flat-button color="primary" routerLink="/members/new">
+      <mat-icon>person_add</mat-icon>
+      <span class="btn-label">Новий читач</span>
+    </a>
+  </div>
+
+  <div class="filters">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Пошук читача</mat-label>
+      <input matInput [(ngModel)]="search" (keyup.enter)="onSearch()" placeholder="Ім'я, прізвище, email...">
+      <button *ngIf="search" mat-icon-button matSuffix (click)="clearSearch()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-icon matSuffix *ngIf="!search">search</mat-icon>
+    </mat-form-field>
+
+    <button mat-stroked-button [class.active-filter]="showInactive" (click)="toggleInactive()">
+      <mat-icon>person_off</mat-icon>
+      <span class="btn-label">Неактивні</span>
+    </button>
+
+    <button mat-stroked-button (click)="load()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div class="stats-row">
+    <span class="total">Знайдено: <strong>{{ members.length }}</strong></span>
+  </div>
+
+  <ng-container *ngIf="loading">
+    <div class="loading"><mat-spinner diameter="40" /></div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading && members.length === 0">
+    <div class="empty">
+      <mat-icon>people</mat-icon>
+      <p>Читачів не знайдено</p>
+      <a mat-flat-button color="primary" routerLink="/members/new">Додати першого читача</a>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading && members.length > 0">
+    <div class="members-grid">
+      <div class="member-card" *ngFor="let member of members">
+        <div class="member-avatar" [class.inactive]="!member.isActive">
+          <mat-icon>account_circle</mat-icon>
+        </div>
+        <div class="member-info">
+          <h3>{{ member.firstName }} {{ member.lastName }}</h3>
+          <p class="member-email">
+            <mat-icon>email</mat-icon>
+            {{ member.email }}
+          </p>
+          <p class="member-phone" *ngIf="member.phone">
+            <mat-icon>phone</mat-icon>
+            {{ member.phone }}
+          </p>
+          <p class="member-date">
+            <mat-icon>calendar_today</mat-icon>
+            З {{ member.membershipDate | date:'dd.MM.yyyy' }}
+          </p>
+          <span class="status-badge" [class.active]="member.isActive" [class.inactive]="!member.isActive">
+            {{ member.isActive ? 'Активний' : 'Неактивний' }}
+          </span>
+        </div>
+        <div class="member-actions">
+          <a mat-icon-button color="primary" [routerLink]="['/members', member._id, 'edit']">
+            <mat-icon>edit</mat-icon>
+          </a>
+          <button mat-icon-button color="warn" (click)="delete(member)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

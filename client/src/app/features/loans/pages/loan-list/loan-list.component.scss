@@ -1,0 +1,179 @@
+.loan-list {
+  max-width: 1200px;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h1 { font-size: 26px; font-weight: 700; }
+
+    @media (max-width: 600px) {
+      margin-bottom: 16px;
+      h1 { font-size: 20px; }
+      .btn-label { display: none; }
+    }
+  }
+
+  .filters {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+
+    .status-filter { width: 200px; }
+
+    @media (max-width: 600px) {
+      .status-filter { width: 100%; }
+    }
+  }
+
+  .stats-row {
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    strong { color: var(--text-primary); }
+  }
+
+  .loading {
+    display: flex;
+    justify-content: center;
+    padding: 60px;
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+
+    mat-icon { font-size: 64px; width: 64px; height: 64px; opacity: 0.3; }
+    p { font-size: 18px; }
+  }
+
+  .loans-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .loan-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr auto auto;
+    gap: 16px;
+    align-items: center;
+    transition: box-shadow 0.2s;
+    border-left: 4px solid transparent;
+
+    &:hover { box-shadow: var(--shadow-hover); }
+    &.overdue { border-left-color: #c62828; }
+
+    @media (max-width: 1100px) {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto;
+    }
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+      padding: 16px;
+    }
+
+    .loan-book {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+
+      .book-icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        mat-icon { color: var(--primary); }
+      }
+
+      .book-details {
+        min-width: 0;
+
+        h3 {
+          font-size: 14px;
+          font-weight: 600;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        p { font-size: 13px; color: var(--text-secondary); }
+        .isbn { font-size: 11px; color: var(--text-secondary); }
+      }
+    }
+
+    .loan-member {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+
+      mat-icon { color: var(--text-secondary); flex-shrink: 0; }
+
+      .member-name { font-size: 14px; font-weight: 500; }
+      .member-email { font-size: 12px; color: var(--text-secondary); }
+    }
+
+    .loan-dates {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .date-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        mat-icon { font-size: 16px; width: 16px; height: 16px; color: var(--text-secondary); }
+
+        div {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+        }
+
+        .date-label { font-size: 11px; color: var(--text-secondary); }
+        .date-value { font-size: 13px; font-weight: 500; }
+      }
+    }
+
+    .loan-status {
+      .status-badge {
+        display: inline-flex;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        white-space: nowrap;
+
+        &.active   { background: #e8f5e9; color: #2e7d32; }
+        &.returned { background: #e3f2fd; color: #1565c0; }
+        &.overdue  { background: #ffebee; color: #c62828; }
+        &.warning  { background: #fff3e0; color: #e65100; }
+      }
+    }
+
+    .loan-actions {
+      .btn-label {
+        @media (max-width: 960px) { display: none; }
+      }
+    }
+  }
+}
