@@ -1,0 +1,44 @@
+<div class="contact-form">
+  <div class="success-msg" *ngIf="sent">
+    <mat-icon>check_circle</mat-icon>
+    <div>
+      <strong>Повідомлення надіслано!</strong>
+      <p>Ми відповімо вам найближчим часом.</p>
+    </div>
+    <button mat-icon-button (click)="sent = false">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!sent">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="dark-field">
+        <mat-label>Ваше ім'я</mat-label>
+        <input matInput formControlName="name">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="dark-field">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email">
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="dark-field">
+      <mat-label>Тема</mat-label>
+      <input matInput formControlName="subject">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="dark-field">
+      <mat-label>Повідомлення</mat-label>
+      <textarea matInput formControlName="text" rows="4"></textarea>
+    </mat-form-field>
+
+    <button mat-flat-button type="submit" [disabled]="saving || form.invalid" class="submit-btn">
+      <mat-spinner diameter="18" *ngIf="saving" />
+      <span *ngIf="!saving">
+        <mat-icon>send</mat-icon>
+        Надіслати
+      </span>
+    </button>
+  </form>
+</div>

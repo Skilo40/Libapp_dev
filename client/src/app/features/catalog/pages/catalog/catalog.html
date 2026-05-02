@@ -1,0 +1,134 @@
+<div class="catalog-page">
+  <div class="catalog-hero">
+    <div class="hero-content">
+      <h1>Каталог книг</h1>
+      <p>Знайдіть свою наступну улюблену книгу</p>
+      <div class="hero-search">
+        <mat-icon>search</mat-icon>
+        <input
+          [(ngModel)]="search"
+          (keyup.enter)="load()"
+          placeholder="Пошук за назвою, автором або ISBN...">
+        <button mat-flat-button (click)="load()">Знайти</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="catalog-body">
+    <aside class="filters-panel">
+      <div class="filters-header">
+        <h3>Фільтри</h3>
+        <button mat-button color="primary" (click)="clearFilters()">
+          <mat-icon>filter_alt_off</mat-icon>
+          Скинути
+        </button>
+      </div>
+
+      <div class="filter-group">
+        <label>Жанр</label>
+        <mat-form-field appearance="outline">
+          <mat-select [(ngModel)]="selectedGenre" (ngModelChange)="load()">
+            <mat-option value="">Всі жанри</mat-option>
+            <mat-option *ngFor="let genre of genres" [value]="genre">{{ genre }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-group">
+        <label>Мова</label>
+        <mat-form-field appearance="outline">
+          <mat-select [(ngModel)]="selectedLanguage" (ngModelChange)="load()">
+            <mat-option value="">Всі мови</mat-option>
+            <mat-option *ngFor="let lang of languages" [value]="lang">{{ lang }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-group">
+        <label>Сортування</label>
+        <mat-form-field appearance="outline">
+          <mat-select [(ngModel)]="sortBy" (ngModelChange)="load()">
+            <mat-option value="createdAt">Новинки</mat-option>
+            <mat-option value="title">За назвою</mat-option>
+            <mat-option value="author">За автором</mat-option>
+            <mat-option value="year">За роком</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-toggle">
+        <label class="toggle-label">
+          <input type="checkbox" [(ngModel)]="showAvailable" (ngModelChange)="load()">
+          <span>Тільки доступні</span>
+        </label>
+      </div>
+    </aside>
+
+    <main class="books-area">
+      <div class="results-header">
+        <span class="results-count">Знайдено: <strong>{{ books.length }}</strong> книг</span>
+      </div>
+
+      <div class="loading" *ngIf="loading">
+        <mat-spinner diameter="40" />
+      </div>
+
+      <div class="empty" *ngIf="!loading && books.length === 0">
+        <mat-icon>search_off</mat-icon>
+        <p>Книг не знайдено</p>
+        <button mat-stroked-button (click)="clearFilters()">Скинути фільтри</button>
+      </div>
+
+      <div class="books-grid" *ngIf="!loading && books.length > 0">
+        <a class="book-card" *ngFor="let book of books" [routerLink]="['/catalog', book._id]">
+          <div class="book-cover">
+            <img *ngIf="book.coverUrl" [src]="book.coverUrl" [alt]="book.title">
+            <mat-icon *ngIf="!book.coverUrl">menu_book</mat-icon>
+          </div>
+          <div class="book-body">
+            <h3 class="book-title">{{ book.title }}</h3>
+            <p class="book-author">{{ book.author }}</p>
+            <div class="book-meta">
+              <span class="genre" *ngIf="book.genre">{{ book.genre }}</span>
+              <span class="year" *ngIf="book.year">{{ book.year }}</span>
+            </div>
+            <div class="availability"
+              [class.available]="book.availableCopies > 0"
+              [class.unavailable]="book.availableCopies === 0">
+              <mat-icon>{{ book.availableCopies > 0 ? 'check_circle' : 'cancel' }}</mat-icon>
+              {{ book.availableCopies > 0 ? 'Доступна' : 'Недоступна' }}
+            </div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="catalog-footer">
+    <div class="footer-content">
+      <div class="footer-info">
+        <div class="footer-logo">
+          <mat-icon>local_library</mat-icon>
+          <span>LibraryApp</span>
+        </div>
+        <p>Публічна бібліотека — місце знань та натхнення</p>
+        <div class="footer-contacts">
+          <span><mat-icon>location_on</mat-icon> вул. Книжкова, 1</span>
+          <span><mat-icon>phone</mat-icon> +380 44 123 45 67</span>
+          <span><mat-icon>schedule</mat-icon> Пн-Пт 9:00–18:00</span>
+        </div>
+      </div>
+      <div class="footer-contact-form">
+        <h3>Зв'яжіться з нами</h3>
+        <app-contact-form />
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 LibraryApp. Всі права захищені.</span>
+      <a routerLink="/login" mat-button>
+        <mat-icon>lock</mat-icon>
+        Вхід для персоналу
+      </a>
+    </div>
+  </footer>
+</div>

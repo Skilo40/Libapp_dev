@@ -23,14 +23,17 @@ export class SidebarComponent {
   @Input() mobileOpen = false;
 
   navItems: NavItem[] = [
-    { label: 'Дашборд', icon: 'dashboard', route: '/dashboard' },
-    { label: 'Книги', icon: 'menu_book', route: '/books' },
-    { label: 'Читачі', icon: 'people', route: '/members' },
-    { label: 'Позики', icon: 'swap_horiz', route: '/loans' },
-    { label: 'Адмін панель', icon: 'admin_panel_settings', route: '/admin', adminOnly: true },
-    { label: 'Журнал аудиту', icon: 'history', route: '/admin/audit', adminOnly: true },
-    { label: 'Управління запасами', icon: 'inventory', route: '/admin/stock', adminOnly: true },
-  ];
+  { label: 'Каталог', icon: 'auto_stories', route: '/catalog' },
+  { label: 'Дашборд', icon: 'dashboard', route: '/dashboard' },
+  { label: 'Книги', icon: 'menu_book', route: '/books' },
+  { label: 'Читачі', icon: 'people', route: '/members' },
+  { label: 'Позики', icon: 'swap_horiz', route: '/loans' },
+  { label: 'Адмін панель', icon: 'admin_panel_settings', route: '/admin', adminOnly: true },
+  { label: 'Бронювання', icon: 'bookmark', route: '/admin/bookings', adminOnly: true },
+  { label: 'Повідомлення', icon: 'message', route: '/admin/messages', adminOnly: true },
+  { label: 'Журнал аудиту', icon: 'history', route: '/admin/audit', adminOnly: true },
+  { label: 'Управління запасами', icon: 'inventory', route: '/admin/stock', adminOnly: true },
+];
 
   constructor(public auth: AuthService) {}
 

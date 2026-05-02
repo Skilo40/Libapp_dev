@@ -1,0 +1,57 @@
+.contact-form {
+  .success-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(46, 125, 50, 0.15);
+    border: 1px solid rgba(46, 125, 50, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    color: #81c784;
+
+    mat-icon { color: #81c784; flex-shrink: 0; font-size: 28px; }
+    strong { display: block; margin-bottom: 4px; }
+    p { font-size: 13px; opacity: 0.8; }
+    button { margin-left: auto; color: rgba(255,255,255,0.5); }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
+  }
+
+  .dark-field {
+    width: 100%;
+    margin-bottom: 4px;
+
+    ::ng-deep {
+      .mat-mdc-text-field-wrapper { background: rgba(255,255,255,0.05); }
+      input, textarea { color: white !important; }
+      label { color: rgba(255,255,255,0.6) !important; }
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: rgba(255,255,255,0.2) !important;
+      }
+    }
+  }
+
+  .submit-btn {
+    width: 100%;
+    height: 44px;
+    background: var(--primary);
+    color: white;
+    border-radius: 8px;
+    margin-top: 8px;
+
+    span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+  }
+}

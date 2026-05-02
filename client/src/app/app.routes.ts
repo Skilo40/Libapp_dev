@@ -1,9 +1,19 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth-guard';
-import { adminGuard } from './core/guards/admin-guard';
+import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'catalog', pathMatch: 'full' },
+  {
+    path: 'catalog',
+    loadComponent: () =>
+      import('./features/catalog/pages/catalog/catalog.component').then(m => m.CatalogComponent),
+  },
+  {
+    path: 'catalog/:id',
+    loadComponent: () =>
+      import('./features/catalog/pages/book-detail/book-detail.component').then(m => m.BookDetail),
+  },
   {
     path: 'login',
     loadComponent: () =>
@@ -61,6 +71,11 @@ export const routes: Routes = [
           import('./features/loans/pages/loan-form/loan-form.component').then(m => m.LoanFormComponent),
       },
       {
+        path: 'profile/:id',
+        loadComponent: () =>
+          import('./features/profile/pages/profile/profile.component').then(m => m.Profile),
+      },
+      {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () =>
@@ -78,7 +93,19 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/pages/stock-manager/stock-manager.component').then(m => m.StockManagerComponent),
       },
+      {
+        path: 'admin/bookings',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/pages/bookings/bookings.component').then(m => m.Bookings),
+      },
+      {
+        path: 'admin/messages',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/pages/messages/messages.component').then(m => m.Messages),
+      },
     ],
   },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: 'catalog' },
 ];
