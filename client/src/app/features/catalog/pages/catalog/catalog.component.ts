@@ -51,7 +51,7 @@ export class CatalogComponent implements OnInit {
     const params: Record<string, string> = {};
     if (this.search) params['search'] = this.search;
     if (this.selectedGenre) params['genre'] = this.selectedGenre;
-    if (this.selectedLanguage) params['language'] = this.selectedLanguage;
+    if (this.selectedLanguage) params['bookLanguage'] = this.selectedLanguage;
     if (this.showAvailable) params['available'] = 'true';
     if (this.sortBy) params['sortBy'] = this.sortBy;
 
@@ -69,4 +69,12 @@ export class CatalogComponent implements OnInit {
     this.sortBy = 'createdAt';
     this.load();
   }
+
+  showContactModal = false;
+
+closeModal(event: MouseEvent) {
+  if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
+    this.showContactModal = false;
+  }
+}
 }

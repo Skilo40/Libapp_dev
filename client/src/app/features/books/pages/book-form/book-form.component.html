@@ -8,48 +8,61 @@
     </div>
   </div>
 
-  @if (loading) {
-    <div class="loading"><mat-spinner diameter="40" /></div>
-  } @else {
+  <div class="loading" *ngIf="loading">
+    <mat-spinner diameter="40" />
+  </div>
+
+  <div class="form-layout" *ngIf="!loading">
     <div class="form-card">
       <form [formGroup]="form" (ngSubmit)="submit()">
+        <h3 class="section-title">Основна інформація</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline" class="col-2">
             <mat-label>Назва книги *</mat-label>
             <input matInput formControlName="title">
-            @if (form.get('title')?.hasError('required')) {
-              <mat-error>Назва обов'язкова</mat-error>
-            }
+            <mat-error *ngIf="form.get('title')?.hasError('required')">
+              Назва обов'язкова
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-2">
             <mat-label>Автор *</mat-label>
             <input matInput formControlName="author">
-            @if (form.get('author')?.hasError('required')) {
-              <mat-error>Автор обов'язковий</mat-error>
-            }
+            <mat-error *ngIf="form.get('author')?.hasError('required')">
+              Автор обов'язковий
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>ISBN *</mat-label>
             <input matInput formControlName="isbn">
-            @if (form.get('isbn')?.hasError('required')) {
-              <mat-error>ISBN обов'язковий</mat-error>
-            }
+            <mat-error *ngIf="form.get('isbn')?.hasError('required')">
+              ISBN обов'язковий
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Жанр</mat-label>
             <mat-select formControlName="genre">
-              @for (genre of genres; track genre) {
-                <mat-option [value]="genre">{{ genre }}</mat-option>
-              }
+              <mat-option *ngFor="let genre of genres" [value]="genre">{{ genre }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Мова</mat-label>
+            <mat-select formControlName="bookLanguage">
+              <mat-option *ngFor="let lang of languages" [value]="lang">{{ lang }}</mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Рік видання</mat-label>
             <input matInput type="number" formControlName="year">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Кількість сторінок</mat-label>
+            <input matInput type="number" formControlName="pages">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -68,17 +81,34 @@
           </mat-form-field>
         </div>
 
+        <h3 class="section-title">Обкладинка</h3>
+        <div class="cover-section">
+          <div class="cover-preview">
+            <img *ngIf="coverPreview" [src]="coverPreview" alt="Обкладинка">
+            <mat-icon *ngIf="!coverPreview">image</mat-icon>
+          </div>
+          <div class="cover-inputs">
+            <mat-form-field appearance="outline">
+              <mat-label>URL обкладинки</mat-label>
+              <input matInput formControlName="coverUrl" placeholder="https://...">
+              <mat-icon matSuffix>link</mat-icon>
+            </mat-form-field>
+            <p class="cover-hint">
+              <mat-icon>info</mat-icon>
+              Вставте посилання на зображення обкладинки книги
+            </p>
+          </div>
+        </div>
+
         <div class="form-actions">
           <a mat-stroked-button routerLink="/books">Скасувати</a>
-          <button mat-flat-button color="primary" type="submit" [disabled]="saving || form.invalid">
-            @if (saving) {
-              <mat-spinner diameter="20" />
-            } @else {
-              {{ isEdit ? 'Зберегти зміни' : 'Додати книгу' }}
-            }
+          <button mat-flat-button color="primary" type="submit"
+            [disabled]="saving || form.invalid">
+            <mat-spinner diameter="20" *ngIf="saving" />
+            <span *ngIf="!saving">{{ isEdit ? 'Зберегти зміни' : 'Додати книгу' }}</span>
           </button>
         </div>
       </form>
     </div>
-  }
+  </div>
 </div>

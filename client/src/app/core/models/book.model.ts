@@ -6,6 +6,9 @@ export interface Book {
   genre?: string;
   year?: number;
   description?: string;
+  bookLanguage?: string;
+  pages?: number;
+  coverUrl?: string;
   totalCopies: number;
   availableCopies: number;
   createdAt: string;
@@ -18,6 +21,9 @@ export interface BookRequest {
   genre?: string;
   year?: number;
   description?: string;
+  bookLanguage?: string;
+  pages?: number;
+  coverUrl?: string;
   totalCopies: number;
   availableCopies: number;
 }

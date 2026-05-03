@@ -5,6 +5,7 @@ import 'dotenv/config';
 import { connectDB } from './config/db.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { startScheduler } from './services/schedulerService.js';
+import Book from './models/Book.js';
 
 import authRoutes from './routes/auth.js';
 import bookRoutes from './routes/books.js';
@@ -16,6 +17,31 @@ import bookingRoutes from './routes/bookings.js';
 import notificationRoutes from './routes/notifications.js';
 import messageRoutes from './routes/messages.js';
 import profileRoutes from './routes/profile.js';
+
+// Мап мов для міграції
+const LANGUAGE_MAP = {
+  'Українська': 'uk',
+  'Англійська': 'en',
+  'Польська': 'pl',
+  'Німецька': 'de',
+  'Францу': 'fr',
+  'Інша': 'other',
+};
+
+// Функція для міграції старих мов
+async function migrateLanguages() {
+  try {
+    for (const [oldLang, newCode] of Object.entries(LANGUAGE_MAP)) {
+      const count = await Book.countDocuments({ language: oldLang });
+      if (count > 0) {
+        await Book.updateMany({ language: oldLang }, { language: newCode });
+        console.log(`[Migration] Updated ${count} books: ${oldLang} → ${newCode}`);
+      }
+    }
+  } catch (err) {
+    console.error('[Migration Error]', err.message);
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,7 +67,10 @@ app.use('/api/profile', profileRoutes);
 
 app.use(errorHandler);
 
-connectDB().then(() => {
+connectDB().then(async () => {
+  // Запускаємо міграцію мов
+  await migrateLanguages();
+  
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     startScheduler();

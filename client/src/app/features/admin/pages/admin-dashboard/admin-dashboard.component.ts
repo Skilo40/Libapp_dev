@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +11,7 @@ import { AdminService, Stats } from '../../../../core/services/admin';
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [
-    CommonModule, NgIf, RouterLink,
+    CommonModule, RouterLink,
     MatIconModule, MatButtonModule,
     MatProgressSpinnerModule, MatSnackBarModule,
   ],

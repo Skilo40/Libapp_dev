@@ -1,1 +1,248 @@
-<p>book-detail works!</p>
+<div class="book-detail">
+  <div class="back-bar">
+    <a routerLink="/catalog" mat-button>
+      <mat-icon>arrow_back</mat-icon>
+      Назад до каталогу
+    </a>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <mat-spinner diameter="48" />
+  </div>
+
+  <ng-container *ngIf="!loading && book">
+    <div class="book-hero">
+      <div class="book-cover">
+        <img *ngIf="book.coverUrl" [src]="book.coverUrl" [alt]="book.title">
+        <mat-icon *ngIf="!book.coverUrl">menu_book</mat-icon>
+      </div>
+
+      <div class="book-info">
+        <h1>{{ book.title }}</h1>
+        <p class="author">{{ book.author }}</p>
+
+        <div class="rating-row">
+          <div class="stars">
+            <mat-icon *ngFor="let s of getStarsArray(avgRating)"
+              [class.filled]="s === 1">star</mat-icon>
+          </div>
+          <span class="rating-value">{{ avgRating }} ({{ reviews.length }} відгуків)</span>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-item" *ngIf="book.genre">
+            <mat-icon>category</mat-icon>
+            <div>
+              <span class="meta-label">Жанр</span>
+              <span class="meta-value">{{ book.genre }}</span>
+            </div>
+          </div>
+          <div class="meta-item" *ngIf="book.year">
+            <mat-icon>calendar_today</mat-icon>
+            <div>
+              <span class="meta-label">Рік</span>
+              <span class="meta-value">{{ book.year }}</span>
+            </div>
+          </div>
+          <div class="meta-item" *ngIf="book.bookLanguage">
+            <mat-icon>translate</mat-icon>
+            <div>
+              <span class="meta-label">Мова</span>
+              <span class="meta-value">{{ book.bookLanguage }}</span>
+            </div>
+          </div>
+          <div class="meta-item" *ngIf="book.pages">
+            <mat-icon>menu_book</mat-icon>
+            <div>
+              <span class="meta-label">Сторінок</span>
+              <span class="meta-value">{{ book.pages }}</span>
+            </div>
+          </div>
+          <div class="meta-item">
+            <mat-icon>tag</mat-icon>
+            <div>
+              <span class="meta-label">ISBN</span>
+              <span class="meta-value">{{ book.isbn }}</span>
+            </div>
+          </div>
+          <div class="meta-item">
+            <mat-icon>library_books</mat-icon>
+            <div>
+              <span class="meta-label">Доступно</span>
+              <span class="meta-value">{{ book.availableCopies }} / {{ book.totalCopies }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="availability-badge"
+          [class.available]="book.availableCopies > 0"
+          [class.unavailable]="book.availableCopies === 0">
+          <mat-icon>{{ book.availableCopies > 0 ? 'check_circle' : 'cancel' }}</mat-icon>
+          {{ book.availableCopies > 0 ? 'Книга доступна для бронювання' : 'Всі примірники видані' }}
+        </div>
+
+        <div class="actions">
+          <button
+            mat-flat-button
+            color="primary"
+            [disabled]="book.availableCopies === 0"
+            (click)="showBookingForm = !showBookingForm">
+            <mat-icon>bookmark_add</mat-icon>
+            Забронювати
+          </button>
+          <button mat-stroked-button (click)="showReviewForm = !showReviewForm">
+            <mat-icon>rate_review</mat-icon>
+            Залишити відгук
+          </button>
+        </div>
+
+        <div class="description" *ngIf="book.description">
+          <h3>Опис</h3>
+          <p>{{ book.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="booking-form-card" *ngIf="showBookingForm">
+      <h2>
+        <mat-icon>bookmark_add</mat-icon>
+        Заявка на бронювання
+      </h2>
+      <p class="form-note">Заповніть форму і адмін розгляне вашу заявку</p>
+
+      <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()">
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Ім'я *</mat-label>
+            <input matInput formControlName="firstName">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Прізвище *</mat-label>
+            <input matInput formControlName="lastName">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Email *</mat-label>
+            <input matInput formControlName="email" type="email">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Телефон</mat-label>
+            <input matInput formControlName="phone">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-2">
+            <mat-label>Примітки</mat-label>
+            <textarea matInput formControlName="notes" rows="2"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="showBookingForm = false">
+            Скасувати
+          </button>
+          <button mat-flat-button color="primary" type="submit"
+            [disabled]="savingBooking || bookingForm.invalid">
+            <mat-spinner diameter="18" *ngIf="savingBooking" />
+            <span *ngIf="!savingBooking">Подати заявку</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Review Form -->
+    <div class="review-form-card" *ngIf="showReviewForm">
+      <h2>
+        <mat-icon>rate_review</mat-icon>
+        Залишити відгук
+      </h2>
+
+      <form [formGroup]="reviewForm" (ngSubmit)="submitReview()">
+        <div class="star-rating">
+          <span>Оцінка:</span>
+          <div class="stars-input">
+            <mat-icon
+              *ngFor="let star of stars"
+              [class.filled]="star <= (hoverRating || selectedRating)"
+              (mouseenter)="hoverRating = star"
+              (mouseleave)="hoverRating = 0"
+              (click)="selectedRating = star">
+              star
+            </mat-icon>
+          </div>
+          <span class="rating-hint" *ngIf="selectedRating === 0">Оберіть оцінку</span>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Ваше ім'я *</mat-label>
+          <input matInput formControlName="authorName">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Відгук *</mat-label>
+          <textarea matInput formControlName="text" rows="4"
+            placeholder="Поділіться враженнями про книгу..."></textarea>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="showReviewForm = false">
+            Скасувати
+          </button>
+          <button mat-flat-button color="primary" type="submit"
+            [disabled]="savingReview || reviewForm.invalid || selectedRating === 0">
+            <mat-spinner diameter="18" *ngIf="savingReview" />
+            <span *ngIf="!savingReview">Опублікувати</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Reviews -->
+    <div class="reviews-section">
+      <h2>Відгуки ({{ reviews.length }})</h2>
+
+      <div class="empty-reviews" *ngIf="reviews.length === 0">
+        <mat-icon>rate_review</mat-icon>
+        <p>Поки що немає відгуків. Будьте першим!</p>
+      </div>
+
+      <div class="reviews-list">
+        <div class="review-card" *ngFor="let review of reviews">
+          <div class="review-header">
+            <div class="reviewer-avatar">
+              {{ review.authorName.charAt(0).toUpperCase() }}
+            </div>
+            <div class="reviewer-info">
+              <strong>{{ review.authorName }}</strong>
+              <span>{{ review.createdAt | date:'dd.MM.yyyy' }}</span>
+            </div>
+            <div class="review-stars">
+              <mat-icon *ngFor="let s of getStarsArray(review.rating)"
+                [class.filled]="s === 1">star</mat-icon>
+            </div>
+          </div>
+          <p class="review-text">{{ review.text }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Similar Books -->
+    <div class="similar-section" *ngIf="similar.length > 0">
+      <h2>Схожі книги</h2>
+      <div class="similar-grid">
+        <a class="similar-card" *ngFor="let s of similar" [routerLink]="['/catalog', s._id]">
+          <div class="similar-cover">
+            <img *ngIf="s.coverUrl" [src]="s.coverUrl" [alt]="s.title">
+            <mat-icon *ngIf="!s.coverUrl">menu_book</mat-icon>
+          </div>
+          <div class="similar-info">
+            <p class="similar-title">{{ s.title }}</p>
+            <p class="similar-author">{{ s.author }}</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </ng-container>
+</div>

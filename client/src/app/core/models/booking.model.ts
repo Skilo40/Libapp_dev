@@ -9,7 +9,7 @@ export interface Booking {
   lastName: string;
   email: string;
   phone?: string;
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  status: 'pending' | 'approved' | 'picked_up' | 'rejected' | 'cancelled';
   pickupDeadline?: string;
   notes?: string;
   adminNote?: string;

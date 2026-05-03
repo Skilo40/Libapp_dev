@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf, NgFor } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
@@ -13,11 +13,13 @@ import { BookService } from '../../../../core/services/book';
 const GENRES = ['Художня', 'Наукова', 'Фантастика', 'Детектив', 'Поезія',
   'Біографія', 'Історична', 'Дитяча', 'Навчальна', 'Інше'];
 
+const LANGUAGES = ['Українська', 'Англійська', 'Польська', 'Німецька', 'Французька', 'Інша'];
+
 @Component({
   selector: 'app-book-form',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, RouterLink,
+    CommonModule, NgIf, NgFor, ReactiveFormsModule, RouterLink,
     MatInputModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatSelectModule,
   ],
@@ -31,6 +33,8 @@ export class BookFormComponent implements OnInit {
   isEdit = false;
   bookId: string | null = null;
   genres = GENRES;
+  languages = LANGUAGES;
+  coverPreview = '';
 
   constructor(
     private fb: FormBuilder,
@@ -40,14 +44,21 @@ export class BookFormComponent implements OnInit {
     private snackBar: MatSnackBar,
   ) {
     this.form = this.fb.group({
-      title: ['', [Validators.required]],
-      author: ['', [Validators.required]],
-      isbn: ['', [Validators.required]],
+      title: ['', Validators.required],
+      author: ['', Validators.required],
+      isbn: ['', Validators.required],
       genre: [''],
       year: [null],
       description: [''],
+      bookLanguage: ['Українська'],
+      pages: [null],
+      coverUrl: [''],
       totalCopies: [1, [Validators.required, Validators.min(1)]],
       availableCopies: [1, [Validators.required, Validators.min(0)]],
+    });
+
+    this.form.get('coverUrl')?.valueChanges.subscribe(val => {
+      this.coverPreview = val;
     });
   }
 
@@ -57,7 +68,11 @@ export class BookFormComponent implements OnInit {
       this.isEdit = true;
       this.loading = true;
       this.bookService.getOne(this.bookId).subscribe({
-        next: (res) => { this.form.patchValue(res.book); this.loading = false; },
+        next: (res) => {
+          this.form.patchValue(res.book);
+          this.coverPreview = res.book.coverUrl || '';
+          this.loading = false;
+        },
         error: () => { this.loading = false; this.router.navigate(['/books']); }
       });
     }

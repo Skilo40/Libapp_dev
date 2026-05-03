@@ -9,10 +9,11 @@ const bookingSchema = new mongoose.Schema({
   phone: { type: String },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected', 'cancelled'],
+    enum: ['pending', 'approved', 'picked_up', 'rejected', 'cancelled'],
     default: 'pending',
   },
   pickupDeadline: { type: Date },
+  pickedUpAt: { type: Date },
   notes: { type: String },
   adminNote: { type: String },
 }, { timestamps: true });

@@ -3,7 +3,7 @@ import { audit } from '../services/auditService.js';
 
 export const getBooks = async (req, res, next) => {
   try {
-    const { search, genre, available } = req.query;
+    const { search, genre, bookLanguage, available } = req.query;
     const filter = {};
 
     if (search) {
@@ -14,6 +14,7 @@ export const getBooks = async (req, res, next) => {
       ];
     }
     if (genre) filter.genre = genre;
+    if (bookLanguage) filter.bookLanguage = bookLanguage;
     if (available === 'true') filter.availableCopies = { $gt: 0 };
 
     const books = await Book.find(filter).sort({ createdAt: -1 });
@@ -57,7 +58,11 @@ export const updateBook = async (req, res, next) => {
     const old = await Book.findById(req.params.id);
     if (!old) return res.status(404).json({ message: 'Книгу не знайдено' });
 
-    const book = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const book = await Book.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
 
     await audit({
       action: 'BOOK_UPDATED',

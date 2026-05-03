@@ -1,5 +1,6 @@
 import Message from '../models/Message.js';
 import Notification from '../models/Notification.js';
+import { sendMessageReply } from '../services/mailService.js';
 
 export const createMessage = async (req, res, next) => {
   try {
@@ -41,12 +42,25 @@ export const replyMessage = async (req, res, next) => {
     await message.save();
 
     if (message.member) {
+      // Авторизований — сповіщення в кабінет
       await Notification.create({
         member: message.member,
         title: 'Відповідь на ваше звернення',
         text: replyText,
         type: 'message_reply',
       });
+    } else {
+      // Неавторизований — надіслати email
+      try {
+        await sendMessageReply({
+          to: message.email,
+          name: message.name,
+          subject: message.subject,
+          replyText,
+        });
+      } catch (mailErr) {
+        console.error('Email помилка:', mailErr.message);
+      }
     }
 
     res.json({ message });

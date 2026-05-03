@@ -57,7 +57,7 @@
       </div>
       <div class="log-user">
         <mat-icon>person</mat-icon>
-        <span>{{ log.performedBy?.name ?? 'Система' }}</span>
+        <span>{{ log.performedBy ? log.performedBy.name : 'Система' }}</span>
       </div>
       <div class="log-time">
         <mat-icon>access_time</mat-icon>

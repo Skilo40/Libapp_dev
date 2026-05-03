@@ -3,81 +3,59 @@
     <h1>Адмін панель</h1>
   </div>
 
-  <div class="loading" *ngIf="loading">
-    <mat-spinner diameter="40" />
+  <div class="sections-grid">
+    <a routerLink="/admin/stock" class="section-card">
+      <div class="section-icon purple"><mat-icon>inventory</mat-icon></div>
+      <div class="section-info">
+        <h3>Управління запасами</h3>
+        <p>Додавання нових лотів, коригування кількості примірників</p>
+      </div>
+      <mat-icon class="arrow">arrow_forward</mat-icon>
+    </a>
+
+    <a routerLink="/admin/bookings" class="section-card">
+      <div class="section-icon orange"><mat-icon>bookmark</mat-icon></div>
+      <div class="section-info">
+        <h3>Бронювання</h3>
+        <p>Перегляд та обробка заявок на бронювання книг</p>
+      </div>
+      <mat-icon class="arrow">arrow_forward</mat-icon>
+    </a>
+
+    <a routerLink="/admin/messages" class="section-card">
+      <div class="section-icon teal"><mat-icon>message</mat-icon></div>
+      <div class="section-info">
+        <h3>Повідомлення</h3>
+        <p>Перегляд звернень читачів та надсилання відповідей</p>
+      </div>
+      <mat-icon class="arrow">arrow_forward</mat-icon>
+    </a>
+
+    <a routerLink="/admin/audit" class="section-card">
+      <div class="section-icon blue"><mat-icon>history</mat-icon></div>
+      <div class="section-info">
+        <h3>Журнал аудиту</h3>
+        <p>Перегляд всіх дій в системі з фільтрацією</p>
+      </div>
+      <mat-icon class="arrow">arrow_forward</mat-icon>
+    </a>
+
+    <a routerLink="/loans?status=overdue" class="section-card">
+      <div class="section-icon red"><mat-icon>assignment_late</mat-icon></div>
+      <div class="section-info">
+        <h3>Прострочені позики</h3>
+        <p>Перегляд та управління простроченими позиками</p>
+      </div>
+      <mat-icon class="arrow">arrow_forward</mat-icon>
+    </a>
+
+    <a routerLink="/books/new" class="section-card">
+      <div class="section-icon green"><mat-icon>library_add</mat-icon></div>
+      <div class="section-info">
+        <h3>Додати книгу</h3>
+        <p>Реєстрація нової книги з обкладинкою та описом</p>
+      </div>
+      <mat-icon class="arrow">arrow_forward</mat-icon>
+    </a>
   </div>
-
-  <ng-container *ngIf="!loading">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon purple"><mat-icon>menu_book</mat-icon></div>
-        <div class="stat-info">
-          <h3>{{ stats?.totalBooks ?? 0 }}</h3>
-          <p>Всього книг</p>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon green"><mat-icon>people</mat-icon></div>
-        <div class="stat-info">
-          <h3>{{ stats?.totalMembers ?? 0 }}</h3>
-          <p>Активних читачів</p>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon orange"><mat-icon>swap_horiz</mat-icon></div>
-        <div class="stat-info">
-          <h3>{{ stats?.activeLoans ?? 0 }}</h3>
-          <p>Активних позик</p>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon red"><mat-icon>warning</mat-icon></div>
-        <div class="stat-info">
-          <h3>{{ stats?.overdueLoans ?? 0 }}</h3>
-          <p>Прострочених</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="admin-sections">
-      <h2>Інструменти адміністратора</h2>
-      <div class="sections-grid">
-        <a routerLink="/admin/stock" class="section-card">
-          <div class="section-icon purple"><mat-icon>inventory</mat-icon></div>
-          <div class="section-info">
-            <h3>Управління запасами</h3>
-            <p>Додавання нових лотів, коригування кількості примірників</p>
-          </div>
-          <mat-icon class="arrow">arrow_forward</mat-icon>
-        </a>
-
-        <a routerLink="/admin/audit" class="section-card">
-          <div class="section-icon blue"><mat-icon>history</mat-icon></div>
-          <div class="section-info">
-            <h3>Журнал аудиту</h3>
-            <p>Перегляд всіх дій в системі з фільтрацією</p>
-          </div>
-          <mat-icon class="arrow">arrow_forward</mat-icon>
-        </a>
-
-        <a routerLink="/loans" class="section-card">
-          <div class="section-icon orange"><mat-icon>assignment_late</mat-icon></div>
-          <div class="section-info">
-            <h3>Прострочені позики</h3>
-            <p>{{ stats?.overdueLoans ?? 0 }} позик потребують уваги</p>
-          </div>
-          <mat-icon class="arrow">arrow_forward</mat-icon>
-        </a>
-
-        <a routerLink="/books/new" class="section-card">
-          <div class="section-icon green"><mat-icon>library_add</mat-icon></div>
-          <div class="section-info">
-            <h3>Додати книгу</h3>
-            <p>Реєстрація нової книги в системі</p>
-          </div>
-          <mat-icon class="arrow">arrow_forward</mat-icon>
-        </a>
-      </div>
-    </div>
-  </ng-container>
 </div>

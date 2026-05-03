@@ -12,7 +12,7 @@ export const routes: Routes = [
   {
     path: 'catalog/:id',
     loadComponent: () =>
-      import('./features/catalog/pages/book-detail/book-detail.component').then(m => m.BookDetail),
+      import('./features/catalog/pages/book-detail/book-detail.component').then(m => m.BookDetailComponent),
   },
   {
     path: 'login',
@@ -73,7 +73,7 @@ export const routes: Routes = [
       {
         path: 'profile/:id',
         loadComponent: () =>
-          import('./features/profile/pages/profile/profile.component').then(m => m.Profile),
+          import('./features/profile/pages/profile/profile.component').then(m => m.ProfileComponent),
       },
       {
         path: 'admin',
@@ -97,13 +97,13 @@ export const routes: Routes = [
         path: 'admin/bookings',
         canActivate: [adminGuard],
         loadComponent: () =>
-          import('./features/admin/pages/bookings/bookings.component').then(m => m.Bookings),
+          import('./features/admin/pages/bookings/bookings.component').then(m => m.BookingsComponent),
       },
       {
         path: 'admin/messages',
         canActivate: [adminGuard],
         loadComponent: () =>
-          import('./features/admin/pages/messages/messages.component').then(m => m.Messages),
+          import('./features/admin/pages/messages/messages.component').then(m => m.MessagesComponent),
       },
     ],
   },

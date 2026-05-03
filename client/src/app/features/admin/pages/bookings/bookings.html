@@ -1,1 +1,135 @@
-<p>bookings works!</p>
+<div class="bookings-page">
+  <div class="page-header">
+    <div class="header-left">
+      <a mat-icon-button routerLink="/admin">
+        <mat-icon>arrow_back</mat-icon>
+      </a>
+      <h1>Управління бронюваннями</h1>
+    </div>
+  </div>
+
+  <div class="filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Статус</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (ngModelChange)="load()">
+      <mat-option value="">Всі</mat-option>
+      <mat-option value="pending">Очікують</mat-option>
+      <mat-option value="approved">Схвалені</mat-option>
+      <mat-option value="picked_up">Забрано</mat-option>
+      <mat-option value="rejected">Відхилені</mat-option>
+    </mat-select>
+    </mat-form-field>
+    <button mat-stroked-button (click)="load()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <mat-spinner diameter="40" />
+  </div>
+
+  <div class="empty" *ngIf="!loading && bookings.length === 0">
+    <mat-icon>bookmark</mat-icon>
+    <p>Бронювань не знайдено</p>
+  </div>
+
+  <div class="bookings-list" *ngIf="!loading && bookings.length > 0">
+    <div class="booking-card" *ngFor="let booking of bookings"
+      [class.selected]="selectedBooking?._id === booking._id">
+
+      <div class="booking-book">
+        <mat-icon>menu_book</mat-icon>
+        <div>
+          <h3>{{ booking.book.title }}</h3>
+          <p>{{ booking.book.author }}</p>
+          <span class="isbn">{{ booking.book.isbn }}</span>
+        </div>
+      </div>
+
+      <div class="booking-person">
+        <mat-icon>person</mat-icon>
+        <div>
+          <p class="name">{{ booking.firstName }} {{ booking.lastName }}</p>
+          <p class="contact">{{ booking.email }}</p>
+          <p class="contact" *ngIf="booking.phone">{{ booking.phone }}</p>
+        </div>
+      </div>
+
+      <div class="booking-meta">
+        <span class="date">
+          <mat-icon>schedule</mat-icon>
+          {{ booking.createdAt | date:'dd.MM.yyyy HH:mm' }}
+        </span>
+        <span class="status-badge" [ngClass]="booking.status">
+        {{ booking.status === 'pending' ? 'Очікує' :
+          booking.status === 'approved' ? 'Схвалено' :
+          booking.status === 'picked_up' ? 'Забрано' : 'Відхилено' }}
+      </span>
+      </div>
+
+      <div class="booking-actions" *ngIf="booking.status === 'pending'">
+        <button mat-stroked-button color="primary" (click)="selectedBooking = booking">
+          <mat-icon>manage_accounts</mat-icon>
+          <span class="btn-label">Розглянути</span>
+        </button>
+      </div>
+
+      <div class="pickup-actions" *ngIf="booking.status === 'approved'">
+  <button mat-stroked-button color="primary" [disabled]="processing"
+    (click)="markPickedUp(booking)">
+    <mat-icon>shopping_bag</mat-icon>
+    <span class="btn-label">Книгу забрано</span>
+  </button>
+</div>
+
+      <div class="admin-note" *ngIf="booking.adminNote">
+        <mat-icon>note</mat-icon>
+        {{ booking.adminNote }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Panel -->
+  <div class="review-panel" *ngIf="selectedBooking">
+    <div class="panel-header">
+      <h2>Розгляд заявки</h2>
+      <button mat-icon-button (click)="selectedBooking = null">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="panel-booking-info">
+      <p><strong>Книга:</strong> {{ selectedBooking.book.title }}</p>
+      <p><strong>Читач:</strong> {{ selectedBooking.firstName }} {{ selectedBooking.lastName }}</p>
+      <p><strong>Email:</strong> {{ selectedBooking.email }}</p>
+      <p *ngIf="selectedBooking.notes"><strong>Примітки:</strong> {{ selectedBooking.notes }}</p>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Дата для отримання (для схвалення)</mat-label>
+      <input matInput type="date" [(ngModel)]="pickupDeadline">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Коментар адміна</mat-label>
+      <textarea matInput [(ngModel)]="adminNote" rows="3"
+        placeholder="Причина відхилення або додаткова інформація..."></textarea>
+    </mat-form-field>
+
+    <div class="panel-actions">
+      <button mat-flat-button color="warn" [disabled]="processing"
+        (click)="reject(selectedBooking)">
+        <mat-icon>close</mat-icon>
+        Відхилити
+      </button>
+      <button mat-flat-button color="primary" [disabled]="processing"
+        (click)="approve(selectedBooking)">
+        <mat-spinner diameter="18" *ngIf="processing" />
+        <span *ngIf="!processing">
+          <mat-icon>check</mat-icon>
+          Схвалити
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

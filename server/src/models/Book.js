@@ -7,7 +7,7 @@ const bookSchema = new mongoose.Schema({
   genre: { type: String, trim: true },
   year: { type: Number },
   description: { type: String },
-  language: { type: String, default: 'Українська' },
+  bookLanguage: { type: String, default: 'Українська' },
   pages: { type: Number },
   coverUrl: { type: String },
   totalCopies: { type: Number, required: true, min: 0, default: 1 },
@@ -15,6 +15,6 @@ const bookSchema = new mongoose.Schema({
   addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
-bookSchema.index({ title: 'text', author: 'text', isbn: 1 });
+bookSchema.index({ title: 'text', author: 'text' });
 
 export default mongoose.model('Book', bookSchema);

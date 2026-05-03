@@ -8,6 +8,7 @@ export interface Member {
   dateOfBirth?: string;
   membershipDate: string;
   isActive: boolean;
+  avatarUrl?: string;
   createdAt: string;
 }
 
@@ -17,4 +18,5 @@ export interface MemberRequest {
   email: string;
   phone?: string;
   address?: string;
+  avatarUrl?: string;
 }

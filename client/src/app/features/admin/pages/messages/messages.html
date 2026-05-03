@@ -1,1 +1,100 @@
-<p>messages works!</p>
+<div class="messages-page">
+  <div class="page-header">
+    <div class="header-left">
+      <a mat-icon-button routerLink="/admin">
+        <mat-icon>arrow_back</mat-icon>
+      </a>
+      <h1>Повідомлення</h1>
+    </div>
+  </div>
+
+  <div class="filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Статус</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (ngModelChange)="load()">
+        <mat-option value="">Всі</mat-option>
+        <mat-option value="new">Нові</mat-option>
+        <mat-option value="replied">Відповіли</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-stroked-button (click)="load()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <mat-spinner diameter="40" />
+  </div>
+
+  <div class="empty" *ngIf="!loading && messages.length === 0">
+    <mat-icon>message</mat-icon>
+    <p>Повідомлень не знайдено</p>
+  </div>
+
+  <div class="messages-layout" *ngIf="!loading && messages.length > 0">
+    <div class="messages-list">
+      <div class="message-item" *ngFor="let msg of messages"
+        [class.selected]="selectedMessage?._id === msg._id"
+        [class.new]="msg.status === 'new'"
+        (click)="selectedMessage = msg; replyText = ''">
+        <div class="msg-avatar">{{ msg.name.charAt(0).toUpperCase() }}</div>
+        <div class="msg-preview">
+          <div class="msg-header">
+            <strong>{{ msg.name }}</strong>
+            <span class="msg-date">{{ msg.createdAt | date:'dd.MM' }}</span>
+          </div>
+          <p class="msg-subject">{{ msg.subject }}</p>
+          <p class="msg-text">{{ msg.text }}</p>
+        </div>
+        <div class="new-dot" *ngIf="msg.status === 'new'"></div>
+      </div>
+    </div>
+
+    <div class="message-detail" *ngIf="selectedMessage">
+      <div class="detail-header">
+        <div class="detail-avatar">{{ selectedMessage.name.charAt(0).toUpperCase() }}</div>
+        <div>
+          <h3>{{ selectedMessage.name }}</h3>
+          <p>{{ selectedMessage.email }}</p>
+        </div>
+        <span class="detail-date">{{ selectedMessage.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
+      </div>
+
+      <h2 class="detail-subject">{{ selectedMessage.subject }}</h2>
+      <p class="detail-text">{{ selectedMessage.text }}</p>
+
+      <div class="existing-reply" *ngIf="selectedMessage.replyText">
+        <div class="reply-header">
+          <mat-icon>reply</mat-icon>
+          Відповідь надіслана {{ selectedMessage.repliedAt | date:'dd.MM.yyyy' }}
+        </div>
+        <p>{{ selectedMessage.replyText }}</p>
+      </div>
+
+      <div class="reply-box" *ngIf="selectedMessage.status === 'new'">
+        <mat-form-field appearance="outline">
+          <mat-label>Відповідь</mat-label>
+          <textarea matInput [(ngModel)]="replyText" rows="5"
+            placeholder="Напишіть відповідь..."></textarea>
+        </mat-form-field>
+        <div class="reply-actions">
+          <button mat-stroked-button (click)="selectedMessage = null">Скасувати</button>
+          <button mat-flat-button color="primary"
+            [disabled]="replying || !replyText.trim()"
+            (click)="sendReply()">
+            <mat-spinner diameter="18" *ngIf="replying" />
+            <span *ngIf="!replying">
+              <mat-icon>send</mat-icon>
+              Надіслати відповідь
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="message-placeholder" *ngIf="!selectedMessage">
+      <mat-icon>inbox</mat-icon>
+      <p>Оберіть повідомлення для перегляду</p>
+    </div>
+  </div>
+</div>
