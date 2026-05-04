@@ -1,17 +1,61 @@
 <div class="catalog-page">
 
   <!-- Header -->
-  <header class="catalog-header">
+    <header class="catalog-header">
     <div class="catalog-header-inner">
       <div class="header-logo">
         <mat-icon>local_library</mat-icon>
         <span>LibraryApp</span>
       </div>
+
       <div class="header-nav">
-        <a routerLink="/login" mat-stroked-button class="login-btn">
-          <mat-icon>login</mat-icon>
-          Увійти
-        </a>
+        <!-- Неавторизований -->
+        <ng-container *ngIf="!auth.isLoggedIn()">
+          <a routerLink="/login" mat-button class="nav-btn">Увійти</a>
+          <a routerLink="/register" mat-flat-button class="register-nav-btn">Реєстрація</a>
+        </ng-container>
+
+        <!-- Авторизований адмін/бібліотекар -->
+        <ng-container *ngIf="auth.isLoggedIn() && (state.isAdmin() || state.isLibrarian())">
+          <a routerLink="/dashboard" mat-button class="nav-btn">
+            <mat-icon>dashboard</mat-icon>
+            Панель управління
+          </a>
+          <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-btn">
+            <mat-icon>account_circle</mat-icon>
+          </button>
+          <mat-menu #userMenu="matMenu">
+            <div class="menu-user-info">
+              <strong>{{ state.currentUser()?.name }}</strong>
+              <span>{{ state.currentUser()?.role }}</span>
+            </div>
+            <button mat-menu-item (click)="auth.logout()">
+              <mat-icon>logout</mat-icon>
+              Вийти
+            </button>
+          </mat-menu>
+        </ng-container>
+
+        <!-- Авторизований читач -->
+        <ng-container *ngIf="auth.isLoggedIn() && state.currentUser()?.role === 'member'">
+          <a [routerLink]="['/profile', getMemberProfileId()]" mat-button class="nav-btn">
+            <mat-icon>account_circle</mat-icon>
+            Мій профіль
+          </a>
+          <button mat-icon-button [matMenuTriggerFor]="memberMenu" class="user-btn">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #memberMenu="matMenu">
+            <div class="menu-user-info">
+              <strong>{{ state.currentUser()?.name }}</strong>
+              <span>{{ state.currentUser()?.email }}</span>
+            </div>
+            <button mat-menu-item (click)="auth.logout()">
+              <mat-icon>logout</mat-icon>
+              Вийти
+            </button>
+          </mat-menu>
+        </ng-container>
       </div>
     </div>
   </header>

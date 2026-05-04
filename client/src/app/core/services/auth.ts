@@ -1,14 +1,23 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { ApiService } from './api';
+import { StateService } from './state';
 import { User, AuthResponse, LoginRequest } from '../models/user.model';
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  currentUser = signal<User | null>(null);
-
-  constructor(private api: ApiService, private router: Router) {
+  constructor(
+    private api: ApiService,
+    private router: Router,
+    private state: StateService,
+  ) {
     this.loadFromStorage();
   }
 
@@ -16,7 +25,7 @@ export class AuthService {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
     if (token && user) {
-      this.currentUser.set(JSON.parse(user));
+      this.state.setUser(JSON.parse(user));
     }
   }
 
@@ -25,7 +34,17 @@ export class AuthService {
       tap(res => {
         localStorage.setItem('token', res.token);
         localStorage.setItem('user', JSON.stringify(res.user));
-        this.currentUser.set(res.user);
+        this.state.setUser(res.user);
+      })
+    );
+  }
+
+  register(data: RegisterRequest) {
+    return this.api.post<AuthResponse>('/auth/register/member', data).pipe(
+      tap(res => {
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify(res.user));
+        this.state.setUser(res.user);
       })
     );
   }
@@ -33,8 +52,8 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    this.currentUser.set(null);
-    this.router.navigate(['/login']);
+    this.state.clearAuth();
+    this.router.navigate(['/catalog']);
   }
 
   getToken(): string | null {
@@ -46,6 +65,10 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    return this.currentUser()?.role === 'admin';
+    return this.state.currentUser()?.role === 'admin';
+  }
+
+  currentUser() {
+    return this.state.currentUser();
   }
 }

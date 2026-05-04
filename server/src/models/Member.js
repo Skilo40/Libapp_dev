@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcryptjs from 'bcryptjs';
 
 const memberSchema = new mongoose.Schema({
   firstName: { type: String, required: true, trim: true },
@@ -11,10 +12,23 @@ const memberSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   avatarUrl: { type: String },
   password: { type: String },
+  role: { type: String, enum: ['member'], default: 'member' },
 }, { timestamps: true });
 
-memberSchema.virtual('fullName').get(function () {
-  return `${this.firstName} ${this.lastName}`;
+memberSchema.pre('save', async function () {
+  if (!this.isModified('password') || !this.password) return;
+  const salt = await bcryptjs.genSalt(12);
+  this.password = await bcryptjs.hash(this.password, salt);
 });
+
+memberSchema.methods.comparePassword = async function (candidate) {
+  return bcryptjs.compare(candidate, this.password);
+};
+
+memberSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  return obj;
+};
 
 export default mongoose.model('Member', memberSchema);

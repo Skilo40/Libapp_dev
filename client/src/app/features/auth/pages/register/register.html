@@ -1,15 +1,27 @@
-<div class="login-page">
-  <div class="login-card">
-    <div class="login-header">
-      <mat-icon class="login-icon">local_library</mat-icon>
+<div class="register-page">
+  <div class="register-card">
+    <div class="register-header">
+      <mat-icon class="register-icon">local_library</mat-icon>
       <h1>LibraryApp</h1>
-      <p>Система обліку бібліотеки</p>
+      <p>Створіть акаунт читача</p>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()">
       <mat-form-field appearance="outline">
+        <mat-label>Повне ім'я</mat-label>
+        <input matInput formControlName="name" placeholder="Іван Петренко">
+        <mat-icon matSuffix>person</mat-icon>
+        <mat-error *ngIf="form.get('name')?.hasError('required')">
+          Ім'я обов'язкове
+        </mat-error>
+        <mat-error *ngIf="form.get('name')?.hasError('minlength')">
+          Мінімум 2 символи
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email" placeholder="email@example.com">
+        <input matInput formControlName="email" type="email">
         <mat-icon matSuffix>email</mat-icon>
         <mat-error *ngIf="form.get('email')?.hasError('required')">
           Email обов'язковий
@@ -30,23 +42,21 @@
         <mat-error *ngIf="form.get('password')?.hasError('required')">
           Пароль обов'язковий
         </mat-error>
+        <mat-error *ngIf="form.get('password')?.hasError('minlength')">
+          Мінімум 6 символів
+        </mat-error>
       </mat-form-field>
 
       <button mat-flat-button color="primary" type="submit"
-        class="login-btn" [disabled]="loading || form.invalid">
+        class="register-btn" [disabled]="loading || form.invalid">
         <mat-spinner diameter="20" *ngIf="loading" />
-        <span *ngIf="!loading">Увійти</span>
+        <span *ngIf="!loading">Зареєструватись</span>
       </button>
     </form>
 
-    <div class="register-link">
-      Немає акаунту?
-      <a routerLink="/register">Зареєструватись</a>
+    <div class="login-link">
+      Вже є акаунт?
+      <a routerLink="/login">Увійти</a>
     </div>
-
-    <a routerLink="/catalog" mat-button class="back-link">
-      <mat-icon>arrow_back</mat-icon>
-      Повернутись до каталогу
-    </a>
   </div>
 </div>

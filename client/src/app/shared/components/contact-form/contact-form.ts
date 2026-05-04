@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MessageService } from '../../../core/services/message';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-contact-form',
@@ -19,7 +20,7 @@ import { MessageService } from '../../../core/services/message';
   templateUrl: './contact-form.html',
   styleUrl: './contact-form.scss'
 })
-export class ContactFormComponent {
+export class ContactFormComponent implements OnInit {
   form: FormGroup;
   saving = false;
   sent = false;
@@ -27,6 +28,7 @@ export class ContactFormComponent {
   constructor(
     private fb: FormBuilder,
     private messageService: MessageService,
+    private authService: AuthService,
     private snackBar: MatSnackBar,
   ) {
     this.form = this.fb.group({
@@ -37,11 +39,44 @@ export class ContactFormComponent {
     });
   }
 
+  ngOnInit() {
+    // Якщо користувач залогінений - автоматично заповнити name та email
+    const user = this.authService.currentUser();
+    if (user) {
+      let fullName = '';
+      
+      // Спочатку спробуємо firstName + lastName
+      if (user.firstName || user.lastName) {
+        fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+      } 
+      // Якщо їх немає - використаємо name
+      else if (user.name) {
+        fullName = user.name;
+      }
+
+      this.form.patchValue({
+        name: fullName,
+        email: user.email,
+      });
+      // Заблокувати ці поля для редагування
+      this.form.get('name')?.disable();
+      this.form.get('email')?.disable();
+    }
+  }
+
   submit() {
     if (this.form.invalid) return;
     this.saving = true;
 
-    this.messageService.create(this.form.value).subscribe({
+    // Отримати значення включаючи disabled поля
+    const formValue = {
+      name: this.form.get('name')?.value,
+      email: this.form.get('email')?.value,
+      subject: this.form.get('subject')?.value,
+      text: this.form.get('text')?.value,
+    };
+
+    this.messageService.create(formValue).subscribe({
       next: () => {
         this.saving = false;
         this.sent = true;

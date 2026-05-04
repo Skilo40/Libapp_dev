@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CatalogService } from '../../../../core/services/catalog';
 import { BookingService } from '../../../../core/services/booking';
+import { AuthService } from '../../../../core/services/auth';
 import { Book } from '../../../../core/models/book.model';
 import { Review } from '../../../../core/models/review.model';
 
@@ -48,6 +49,7 @@ export class BookDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private catalogService: CatalogService,
     private bookingService: BookingService,
+    private authService: AuthService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
   ) {
@@ -76,6 +78,60 @@ export class BookDetailComponent implements OnInit {
         this.loading = false;
       },
       error: () => { this.loading = false; }
+    });
+  }
+
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  get currentUser() {
+    return this.authService.currentUser();
+  }
+
+  onBookingClick() {
+    if (!this.book) return;
+    
+    // Якщо залогінений - робити booking одразу
+    if (this.isLoggedIn) {
+      this.quickBooking();
+    } else {
+      // Якщо не залогінений - показати форму
+      this.showBookingForm = !this.showBookingForm;
+    }
+  }
+
+  quickBooking() {
+    if (!this.book) return;
+    this.savingBooking = true;
+
+    const user = this.currentUser;
+    let firstName = user?.firstName || '';
+    let lastName = user?.lastName || '';
+
+    // Якщо firstName/lastName не знайдені, розділити name поле
+    if (!firstName && !lastName && user?.name) {
+      const nameParts = user.name.trim().split(' ');
+      firstName = nameParts[0] || '';
+      lastName = nameParts.slice(1).join(' ') || '';
+    }
+
+    this.bookingService.create({
+      firstName,
+      lastName,
+      email: user?.email || '',
+      phone: user?.phone || '',
+      notes: '',
+      bookId: this.book._id,
+    }).subscribe({
+      next: () => {
+        this.savingBooking = false;
+        this.snackBar.open('Книгу успішно забронировано!', 'OK', { duration: 4000, panelClass: 'success' });
+      },
+      error: (err) => {
+        this.savingBooking = false;
+        this.snackBar.open(err.error?.message || 'Помилка при бронюванні', 'OK', { duration: 3000, panelClass: 'error' });
+      },
     });
   }
 

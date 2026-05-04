@@ -85,10 +85,11 @@
           <button
             mat-flat-button
             color="primary"
-            [disabled]="book.availableCopies === 0"
-            (click)="showBookingForm = !showBookingForm">
-            <mat-icon>bookmark_add</mat-icon>
-            Забронювати
+            [disabled]="book.availableCopies === 0 || savingBooking"
+            (click)="onBookingClick()">
+            <mat-icon *ngIf="!savingBooking">bookmark_add</mat-icon>
+            <mat-spinner *ngIf="savingBooking" diameter="18" />
+            {{ isLoggedIn ? 'Забронювати' : 'Забронювати' }}
           </button>
           <button mat-stroked-button (click)="showReviewForm = !showReviewForm">
             <mat-icon>rate_review</mat-icon>

@@ -8,7 +8,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatMenuModule } from '@angular/material/menu';
 import { CatalogService } from '../../../../core/services/catalog';
+import { AuthService } from '../../../../core/services/auth';
+import { StateService } from '../../../../core/services/state';
 import { Book } from '../../../../core/models/book.model';
 import { ContactFormComponent } from '../../../../shared/components/contact-form/contact-form';
 
@@ -19,7 +22,7 @@ import { ContactFormComponent } from '../../../../shared/components/contact-form
     CommonModule, NgFor, NgIf, RouterLink, FormsModule,
     MatIconModule, MatButtonModule, MatInputModule,
     MatFormFieldModule, MatSelectModule,
-    MatProgressSpinnerModule, ContactFormComponent,
+    MatProgressSpinnerModule, MatMenuModule, ContactFormComponent,
   ],
   templateUrl: './catalog.html',
   styleUrl: './catalog.scss'
@@ -29,6 +32,7 @@ export class CatalogComponent implements OnInit {
   loading = true;
   genres: string[] = [];
   languages: string[] = [];
+  showContactModal = false;
 
   search = '';
   selectedGenre = '';
@@ -36,9 +40,21 @@ export class CatalogComponent implements OnInit {
   showAvailable = false;
   sortBy = 'createdAt';
 
-  constructor(private catalogService: CatalogService) {}
+  constructor(
+    private catalogService: CatalogService,
+    public auth: AuthService,
+    public state: StateService,
+  ) {}
 
   ngOnInit() {
+    // Відновити фільтри зі стейту
+    const saved = this.state.catalogFilters();
+    this.search = saved.search;
+    this.selectedGenre = saved.selectedGenre;
+    this.selectedLanguage = saved.selectedLanguage;
+    this.showAvailable = saved.showAvailable;
+    this.sortBy = saved.sortBy;
+
     this.catalogService.getFilters().subscribe(res => {
       this.genres = res.genres;
       this.languages = res.languages;
@@ -48,6 +64,16 @@ export class CatalogComponent implements OnInit {
 
   load() {
     this.loading = true;
+
+    // Зберегти фільтри в стейт
+    this.state.setCatalogFilters({
+      search: this.search,
+      selectedGenre: this.selectedGenre,
+      selectedLanguage: this.selectedLanguage,
+      showAvailable: this.showAvailable,
+      sortBy: this.sortBy,
+    });
+
     const params: Record<string, string> = {};
     if (this.search) params['search'] = this.search;
     if (this.selectedGenre) params['genre'] = this.selectedGenre;
@@ -67,14 +93,17 @@ export class CatalogComponent implements OnInit {
     this.selectedLanguage = '';
     this.showAvailable = false;
     this.sortBy = 'createdAt';
+    this.state.resetCatalogFilters();
     this.load();
   }
 
-  showContactModal = false;
-
-closeModal(event: MouseEvent) {
-  if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
-    this.showContactModal = false;
+  closeModal(event: MouseEvent) {
+    if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
+      this.showContactModal = false;
+    }
   }
-}
+
+  getMemberProfileId(): string {
+    return this.state.currentUser()?._id || '';
+  }
 }

@@ -1,8 +1,10 @@
 import Booking from '../models/Booking.js';
 import Book from '../models/Book.js';
+import Member from '../models/Member.js';
 import Notification from '../models/Notification.js';
 import { audit } from '../services/auditService.js';
 import { sendReminderEmail } from '../services/mailService.js';
+import Loan from '../models/Loan.js';
 
 export const createBooking = async (req, res, next) => {
   try {
@@ -68,6 +70,58 @@ export const updateBooking = async (req, res, next) => {
       await Book.findByIdAndUpdate(booking.book._id, {
         $inc: { availableCopies: 1 }
       });
+    }
+
+    // Створити позику коли книгу отримали
+    if (status === 'picked_up' && oldStatus !== 'picked_up') {
+      let memberId = booking.member;
+      
+      // Якщо членом немає, спробувати знайти або створити за email
+      if (!memberId) {
+        console.log('No member in booking, trying to find/create by email:', booking.email);
+        try {
+          let member = await Member.findOne({ email: booking.email });
+          if (!member) {
+            console.log('Member not found, creating new member:', booking.firstName, booking.lastName);
+            member = await Member.create({
+              firstName: booking.firstName,
+              lastName: booking.lastName,
+              email: booking.email,
+              phone: booking.phone || '',
+            });
+          }
+          memberId = member._id;
+          // Оновити бронювання з ID члена
+          booking.member = memberId;
+          await booking.save();
+          console.log('Member found/created:', memberId);
+        } catch (memberErr) {
+          console.error('Error finding/creating member:', memberErr);
+          return res.status(500).json({ message: 'Помилка при створенні члена' });
+        }
+      }
+
+      // Створити позику
+      if (memberId && req.user) {
+        const dueDate = booking.pickupDeadline || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+        try {
+          const newLoan = await Loan.create({
+            book: booking.book._id,
+            member: memberId,
+            issuedBy: req.user._id,
+            dueDate,
+            notes: `Створено з бронювання #${booking._id}`,
+          });
+          console.log('Loan created successfully:', newLoan._id);
+        } catch (loanErr) {
+          console.error('Error creating loan:', loanErr.message);
+          return res.status(500).json({ message: 'Помилка при створенні позики: ' + loanErr.message });
+        }
+      } else {
+        console.log('Missing memberId or req.user for loan creation');
+        if (!memberId) console.log('memberId is missing');
+        if (!req.user) console.log('req.user is missing - make sure you are authenticated');
+      }
     }
 
     const deadlineStr = pickupDeadline

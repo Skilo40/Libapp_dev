@@ -14,12 +14,12 @@
     <div class="form-row">
       <mat-form-field appearance="outline" class="dark-field">
         <mat-label>Ваше ім'я</mat-label>
-        <input matInput formControlName="name">
+        <input matInput formControlName="name" [readonly]="form.get('name')?.disabled">
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="dark-field">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email">
+        <input matInput formControlName="email" type="email" [readonly]="form.get('email')?.disabled">
       </mat-form-field>
     </div>
 

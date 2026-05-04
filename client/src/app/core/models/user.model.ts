@@ -1,10 +1,14 @@
 export interface User {
   _id: string;
-  name: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
-  role: 'admin' | 'librarian';
-  isActive: boolean;
-  createdAt: string;
+  phone?: string;
+  role: 'admin' | 'librarian' | 'member';
+  memberId?: string;
+  isActive?: boolean;
+  createdAt?: string;
 }
 
 export interface AuthResponse {
@@ -13,6 +17,12 @@ export interface AuthResponse {
 }
 
 export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  name: string;
   email: string;
   password: string;
 }
