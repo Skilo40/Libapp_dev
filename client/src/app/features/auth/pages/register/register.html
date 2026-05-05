@@ -8,13 +8,25 @@
 
     <form [formGroup]="form" (ngSubmit)="submit()">
       <mat-form-field appearance="outline">
-        <mat-label>Повне ім'я</mat-label>
-        <input matInput formControlName="name" placeholder="Іван Петренко">
+        <mat-label>Ім'я</mat-label>
+        <input matInput formControlName="firstName" placeholder="Іван">
         <mat-icon matSuffix>person</mat-icon>
-        <mat-error *ngIf="form.get('name')?.hasError('required')">
+        <mat-error *ngIf="form.get('firstName')?.hasError('required')">
           Ім'я обов'язкове
         </mat-error>
-        <mat-error *ngIf="form.get('name')?.hasError('minlength')">
+        <mat-error *ngIf="form.get('firstName')?.hasError('minlength')">
+          Мінімум 2 символи
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Прізвище</mat-label>
+        <input matInput formControlName="lastName" placeholder="Петренко">
+        <mat-icon matSuffix>person</mat-icon>
+        <mat-error *ngIf="form.get('lastName')?.hasError('required')">
+          Прізвище обов'язкове
+        </mat-error>
+        <mat-error *ngIf="form.get('lastName')?.hasError('minlength')">
           Мінімум 2 символи
         </mat-error>
       </mat-form-field>
@@ -29,6 +41,12 @@
         <mat-error *ngIf="form.get('email')?.hasError('email')">
           Невірний формат email
         </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Телефон (опціонально)</mat-label>
+        <input matInput formControlName="phone" placeholder="+38 (0XX) XXX-XX-XX">
+        <mat-icon matSuffix>phone</mat-icon>
       </mat-form-field>
 
       <mat-form-field appearance="outline">

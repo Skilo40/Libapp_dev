@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Member from '../models/Member.js';
 import { audit } from '../services/auditService.js';
+import { sendRegistrationConfirmation } from '../services/mailService.js';
 
 const signToken = (id, role) =>
   jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
@@ -29,22 +30,32 @@ export const register = async (req, res, next) => {
 
 export const registerMember = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { firstName, lastName, email, phone, password } = req.body;
 
     const existing = await Member.findOne({ email });
     if (existing) {
       return res.status(400).json({ message: 'Email вже використовується' });
     }
 
-    const [firstName, ...rest] = name.trim().split(' ');
-    const lastName = rest.join(' ') || '-';
-
     const member = await Member.create({
-      firstName,
-      lastName,
+      firstName: firstName || '',
+      lastName: lastName || '',
       email,
+      phone: phone || '',
       password,
     });
+
+    // Надіслати листа підтвердження на email
+    try {
+      await sendRegistrationConfirmation({
+        to: email,
+        firstName: firstName || 'користувач',
+        lastName: lastName || '',
+      });
+    } catch (mailErr) {
+      console.error('Помилка при відправленні листа підтвердження:', mailErr);
+      // Не перервати реєстрацію якщо не вдалось надіслати лист
+    }
 
     const token = signToken(member._id, 'member');
     res.status(201).json({

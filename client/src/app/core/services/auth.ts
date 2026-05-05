@@ -6,8 +6,10 @@ import { StateService } from './state';
 import { User, AuthResponse, LoginRequest } from '../models/user.model';
 
 export interface RegisterRequest {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
+  phone?: string;
   password: string;
 }
 

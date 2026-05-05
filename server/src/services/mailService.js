@@ -76,3 +76,38 @@ export const sendMessageReply = async ({ to, name, subject, replyText }) => {
     `,
   });
 };
+
+export const sendRegistrationConfirmation = async ({ to, firstName, lastName }) => {
+  const name = `${firstName} ${lastName}`.trim();
+
+  await transporter.sendMail({
+    from: process.env.MAIL_FROM,
+    to,
+    subject: 'Добро пожалувати до LibraryApp! Реєстрація завершена',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #7b1fa2;">LibraryApp — Добро пожалувати!</h2>
+        <p>Шановний(а) <strong>${name}</strong>,</p>
+        <p>Дякуємо за реєстрацію на нашому сайті!</p>
+        <p>Ваш акаунт успішно створений. Тепер ви можете:</p>
+        <ul>
+          <li>Переглядати каталог книг</li>
+          <li>Бронювати книги</li>
+          <li>Залишати відгуки</li>
+          <li>Управляти своїми позиками та броніюваннями</li>
+        </ul>
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="${process.env.CLIENT_URL || 'http://localhost:80'}/login" 
+             style="background: #7b1fa2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">
+            Увійти в акаунт
+          </a>
+        </div>
+        <hr/>
+        <p style="color: #9e9e9e; font-size: 12px;">
+          Це автоматичне повідомлення від системи обліку бібліотеки LibraryApp.
+          Будь ласка, не відповідайте на цей лист.
+        </p>
+      </div>
+    `,
+  });
+};

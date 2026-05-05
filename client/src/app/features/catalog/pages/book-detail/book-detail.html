@@ -91,7 +91,7 @@
             <mat-spinner *ngIf="savingBooking" diameter="18" />
             {{ isLoggedIn ? 'Забронювати' : 'Забронювати' }}
           </button>
-          <button mat-stroked-button (click)="showReviewForm = !showReviewForm">
+          <button mat-stroked-button (click)="onReviewClick()">
             <mat-icon>rate_review</mat-icon>
             Залишити відгук
           </button>
@@ -105,7 +105,7 @@
     </div>
 
     <!-- Booking Form -->
-    <div class="booking-form-card" *ngIf="showBookingForm">
+    <div class="booking-form-card" *ngIf="showBookingForm && isLoggedIn">
       <h2>
         <mat-icon>bookmark_add</mat-icon>
         Заявка на бронювання
@@ -154,7 +154,7 @@
     </div>
 
     <!-- Review Form -->
-    <div class="review-form-card" *ngIf="showReviewForm">
+    <div class="review-form-card" *ngIf="showReviewForm && isLoggedIn">
       <h2>
         <mat-icon>rate_review</mat-icon>
         Залишити відгук

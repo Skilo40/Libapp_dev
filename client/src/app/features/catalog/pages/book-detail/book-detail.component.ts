@@ -96,9 +96,28 @@ export class BookDetailComponent implements OnInit {
     if (this.isLoggedIn) {
       this.quickBooking();
     } else {
-      // Якщо не залогінений - показати форму
-      this.showBookingForm = !this.showBookingForm;
+      // Якщо не залогінений - запропонувати логін
+      this.showAuthPrompt();
     }
+  }
+
+  onReviewClick() {
+    // Якщо не залогінений - запропонувати логін
+    if (!this.isLoggedIn) {
+      this.showAuthPrompt();
+    } else {
+      this.showReviewForm = !this.showReviewForm;
+    }
+  }
+
+  showAuthPrompt() {
+    const message = 'Для цієї дії потрібна авторизація. Будь ласка, увійдіть або зареєструйтесь.';
+    this.snackBar.open(message, 'Логін', { 
+      duration: 5000,
+      panelClass: 'auth-prompt'
+    }).onAction().subscribe(() => {
+      window.location.href = '/login';
+    });
   }
 
   quickBooking() {
