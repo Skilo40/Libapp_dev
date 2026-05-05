@@ -1,5 +1,6 @@
 import cron from 'node-cron';
 import Loan from '../models/Loan.js';
+import Notification from '../models/Notification.js';
 import { sendReminderEmail, sendOverdueEmail } from './mailService.js';
 
 const checkLoans = async () => {
@@ -25,6 +26,15 @@ const checkLoans = async () => {
           bookTitle: loan.book.title,
           dueDate: loan.dueDate,
         });
+
+        await Notification.create({
+          member: loan.member._id,
+          title: 'Скоро повертати книгу',
+          text: `Нагадуємо, що термін повернення книги "${loan.book.title}" спливає ${new Date(loan.dueDate).toLocaleDateString('uk-UA')}.`,
+          type: 'loan_reminder',
+          isRead: false
+        });
+
         loan.notificationSentAt = new Date();
         await loan.save();
         console.log(`[Scheduler] Нагадування надіслано: ${loan.member.email}`);
@@ -51,6 +61,15 @@ const checkLoans = async () => {
           bookTitle: loan.book.title,
           dueDate: loan.dueDate,
         });
+
+        await Notification.create({
+          member: loan.member._id,
+          title: 'Прострочення!',
+          text: `Термін повернення книги "${loan.book.title}" минув. Будь ласка, поверніть її якнайшвидше.`,
+          type: 'loan_overdue',
+          isRead: false
+        });
+
         console.log(`[Scheduler] Сповіщення про прострочення: ${loan.member.email}`);
       } catch (err) {
         console.error(`[Scheduler] Помилка надсилання до ${loan.member.email}:`, err.message);

@@ -22,6 +22,16 @@ export const createBooking = async (req, res, next) => {
       firstName, lastName, email, phone, notes,
     });
 
+    if (memberId) {
+      await Notification.create({
+        member: memberId,
+        title: 'Книгу заброньовано',
+        text: `Ваше бронювання на книгу "${book.title}" успішно оформлено. Очікуйте на підтвердження адміністратора.`,
+        type: 'booking_created',
+        isRead: false
+      });
+    }
+
     res.status(201).json({ booking });
   } catch (err) {
     next(err);
@@ -58,25 +68,21 @@ export const updateBooking = async (req, res, next) => {
     if (status === 'picked_up') booking.pickedUpAt = new Date();
     await booking.save();
 
-    // Зменшити кількість при схваленні
     if (status === 'approved' && oldStatus !== 'approved') {
       await Book.findByIdAndUpdate(booking.book._id, {
         $inc: { availableCopies: -1 }
       });
     }
 
-    // Повернути кількість при відхиленні якщо було схвалено
     if (status === 'rejected' && oldStatus === 'approved') {
       await Book.findByIdAndUpdate(booking.book._id, {
         $inc: { availableCopies: 1 }
       });
     }
 
-    // Створити позику коли книгу отримали
     if (status === 'picked_up' && oldStatus !== 'picked_up') {
       let memberId = booking.member;
       
-      // Якщо членом немає, спробувати знайти або створити за email
       if (!memberId) {
         console.log('No member in booking, trying to find/create by email:', booking.email);
         try {
@@ -91,7 +97,6 @@ export const updateBooking = async (req, res, next) => {
             });
           }
           memberId = member._id;
-          // Оновити бронювання з ID члена
           booking.member = memberId;
           await booking.save();
           console.log('Member found/created:', memberId);
@@ -101,7 +106,6 @@ export const updateBooking = async (req, res, next) => {
         }
       }
 
-      // Створити позику
       if (memberId && req.user) {
         const dueDate = booking.pickupDeadline || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
         try {
@@ -128,7 +132,6 @@ export const updateBooking = async (req, res, next) => {
       ? new Date(pickupDeadline).toLocaleDateString('uk-UA')
       : '';
 
-    // Сповіщення авторизованому користувачу
     if (booking.member) {
       let notifText = '';
       let notifTitle = '';
@@ -154,10 +157,10 @@ export const updateBooking = async (req, res, next) => {
           title: notifTitle,
           text: notifText,
           type: notifType,
+          isRead: false
         });
       }
     } else {
-      // Неавторизований — надіслати email
       try {
         if (status === 'approved') {
           await sendReminderEmail({

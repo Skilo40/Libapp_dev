@@ -1,132 +1,149 @@
-<div class="profile-page">
-  <div class="loading" *ngIf="loading">
-    <mat-spinner diameter="48" />
-  </div>
+<div class="profile-layout-wrapper">
+  
+  <!-- Основний контент профілю -->
+  <div class="profile-page">
+    <div class="loading" *ngIf="loading">
+      <mat-spinner diameter="48" />
+    </div>
 
-  <ng-container *ngIf="!loading && member">
-    <div class="profile-header">
-      <div class="avatar-section">
-        <div class="avatar" [style.backgroundImage]="member.avatarUrl ? 'url(' + member.avatarUrl + ')' : 'none'">
-          <mat-icon *ngIf="!member.avatarUrl">account_circle</mat-icon>
+    <ng-container *ngIf="!loading && member">
+      <div class="profile-header">
+        <div class="avatar-section">
+          <div class="avatar" [style.backgroundImage]="member.avatarUrl ? 'url(' + member.avatarUrl + ')' : 'none'">
+            <mat-icon *ngIf="!member.avatarUrl">account_circle</mat-icon>
+          </div>
+          <div class="profile-title">
+            <h1>{{ member.firstName }} {{ member.lastName }}</h1>
+            <p>{{ member.email }}</p>
+            <span class="member-since">
+              <mat-icon>calendar_today</mat-icon>
+              Читач з {{ member.membershipDate | date:'MMMM yyyy' : '' : 'uk' }}
+            </span>
+          </div>
         </div>
-        <div class="profile-title">
-          <h1>{{ member.firstName }} {{ member.lastName }}</h1>
-          <p>{{ member.email }}</p>
-          <span class="member-since">
-            <mat-icon>calendar_today</mat-icon>
-            Читач з {{ member.membershipDate | date:'MMMM yyyy' : '' : 'uk' }}
-          </span>
-        </div>
+        <button mat-stroked-button (click)="editMode = !editMode">
+          <mat-icon>{{ editMode ? 'close' : 'edit' }}</mat-icon>
+          {{ editMode ? 'Скасувати' : 'Редагувати' }}
+        </button>
       </div>
-      <button mat-stroked-button (click)="editMode = !editMode">
-        <mat-icon>{{ editMode ? 'close' : 'edit' }}</mat-icon>
-        {{ editMode ? 'Скасувати' : 'Редагувати' }}
-      </button>
-    </div>
 
-    <div class="edit-form" *ngIf="editMode">
-      <form [formGroup]="form" (ngSubmit)="saveProfile()">
-        <div class="form-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>Ім'я</mat-label>
-            <input matInput formControlName="firstName">
-          </mat-form-field>
+      <div class="edit-form" *ngIf="editMode">
+        <form [formGroup]="form" (ngSubmit)="saveProfile()">
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Ім'я</mat-label>
+              <input matInput formControlName="firstName">
+            </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Прізвище</mat-label>
-            <input matInput formControlName="lastName">
-          </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Прізвище</mat-label>
+              <input matInput formControlName="lastName">
+            </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Телефон</mat-label>
-            <input matInput formControlName="phone">
-          </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Телефон</mat-label>
+              <input matInput formControlName="phone">
+            </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Адреса</mat-label>
-            <input matInput formControlName="address">
-          </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Адреса</mat-label>
+              <input matInput formControlName="address">
+            </mat-form-field>
 
-          <mat-form-field appearance="outline" class="col-2">
-            <mat-label>URL аватару</mat-label>
-            <input matInput formControlName="avatarUrl" placeholder="https://...">
-            <mat-icon matSuffix>image</mat-icon>
-          </mat-form-field>
-        </div>
-
-        <div class="form-actions">
-          <button mat-flat-button color="primary" type="submit" [disabled]="saving || form.invalid">
-            <mat-spinner diameter="18" *ngIf="saving" />
-            <span *ngIf="!saving">Зберегти зміни</span>
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <mat-tab-group>
-      <mat-tab label="Історія книг">
-        <div class="tab-content">
-          <div class="empty" *ngIf="loans.length === 0">
-            <mat-icon>menu_book</mat-icon>
-            <p>Немає жодної позики</p>
+            <mat-form-field appearance="outline" class="col-2">
+              <mat-label>URL аватару</mat-label>
+              <input matInput formControlName="avatarUrl" placeholder="https://...">
+              <mat-icon matSuffix>image</mat-icon>
+            </mat-form-field>
           </div>
 
-          <div class="loans-list">
-            <div class="loan-row" *ngFor="let loan of loans">
-              <div class="loan-cover">
-                <img *ngIf="loan.book.coverUrl" [src]="loan.book.coverUrl" [alt]="loan.book.title">
-                <mat-icon *ngIf="!loan.book.coverUrl">menu_book</mat-icon>
-              </div>
-              <div class="loan-info">
-                <h3>{{ loan.book.title }}</h3>
-                <p>{{ loan.book.author }}</p>
-                <div class="loan-dates">
-                  <span><mat-icon>login</mat-icon>{{ loan.issueDate | date:'dd.MM.yyyy' }}</span>
-                  <span><mat-icon>logout</mat-icon>До {{ loan.dueDate | date:'dd.MM.yyyy' }}</span>
-                </div>
-              </div>
-              <span class="loan-status" [ngClass]="getLoanStatus(loan).class">
-                {{ getLoanStatus(loan).label }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </mat-tab>
-
-      <mat-tab>
-        <ng-template mat-tab-label>
-          Сповіщення
-          <span class="unread-badge" *ngIf="unread > 0">{{ unread }}</span>
-        </ng-template>
-
-        <div class="tab-content">
-          <div class="notif-header" *ngIf="unread > 0">
-            <button mat-button color="primary" (click)="markAllRead()">
-              <mat-icon>done_all</mat-icon>
-              Позначити всі як прочитані
+          <div class="form-actions">
+            <button mat-flat-button color="primary" type="submit" [disabled]="saving || form.invalid">
+              <mat-spinner diameter="18" *ngIf="saving" />
+              <span *ngIf="!saving">Зберегти зміни</span>
             </button>
           </div>
+        </form>
+      </div>
 
-          <div class="empty" *ngIf="notifications.length === 0">
-            <mat-icon>notifications_none</mat-icon>
-            <p>Немає сповіщень</p>
-          </div>
+      <mat-tab-group>
+        <mat-tab label="Історія книг">
+          <div class="tab-content">
+            <div class="empty" *ngIf="loans.length === 0">
+              <mat-icon>menu_book</mat-icon>
+              <p>Немає жодної позики</p>
+            </div>
 
-          <div class="notif-list">
-            <div class="notif-card" *ngFor="let notif of notifications" [class.unread]="!notif.isRead">
-              <div class="notif-icon">
-                <mat-icon>notifications</mat-icon>
+            <div class="loans-list">
+              <div class="loan-row" *ngFor="let loan of loans">
+                <div class="loan-cover">
+                  <img *ngIf="loan.book.coverUrl" [src]="loan.book.coverUrl" [alt]="loan.book.title">
+                  <mat-icon *ngIf="!loan.book.coverUrl">menu_book</mat-icon>
+                </div>
+                <div class="loan-info">
+                  <h3>{{ loan.book.title }}</h3>
+                  <p>{{ loan.book.author }}</p>
+                  <div class="loan-dates">
+                    <span><mat-icon>login</mat-icon>{{ loan.issueDate | date:'dd.MM.yyyy' }}</span>
+                    <span><mat-icon>logout</mat-icon>До {{ loan.dueDate | date:'dd.MM.yyyy' }}</span>
+                  </div>
+                </div>
+                <span class="loan-status" [ngClass]="getLoanStatus(loan).class">
+                  {{ getLoanStatus(loan).label }}
+                </span>
               </div>
-              <div class="notif-body">
-                <strong>{{ notif.title }}</strong>
-                <p>{{ notif.text }}</p>
-                <span>{{ notif.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
-              </div>
-              <div class="unread-dot" *ngIf="!notif.isRead"></div>
             </div>
           </div>
-        </div>
-      </mat-tab>
-    </mat-tab-group>
-  </ng-container>
+        </mat-tab>
+
+        <mat-tab>
+          <ng-template mat-tab-label>
+            Сповіщення
+            <span class="unread-badge" *ngIf="unread > 0">{{ unread }}</span>
+          </ng-template>
+
+          <div class="tab-content">
+            <div class="notif-header" *ngIf="unread > 0">
+              <button mat-button color="primary" (click)="markAllRead()">
+                <mat-icon>done_all</mat-icon>
+                Позначити всі як прочитані
+              </button>
+            </div>
+
+            <div class="empty" *ngIf="notifications.length === 0">
+              <mat-icon>notifications_none</mat-icon>
+              <p>Немає сповіщень</p>
+            </div>
+
+            <div class="notif-list">
+              <div class="notif-card" *ngFor="let notif of notifications" [class.unread]="!notif.isRead" [class.admin-reply]="notif.type === 'admin_reply'">
+                <div class="notif-icon">
+                  <mat-icon>{{ notif.type === 'admin_reply' ? 'support_agent' : 'notifications' }}</mat-icon>
+                </div>
+                
+                <div class="notif-body">
+                  <strong>{{ notif.title }}</strong>
+                  <p>{{ notif.text }}</p>
+                  <div class="notif-footer">
+                    <span class="type-tag" *ngIf="notif.type === 'admin_reply'">Відповідь адміна</span>
+                    <span class="date">{{ notif.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
+                  </div>
+                </div>
+
+                <div class="unread-dot" *ngIf="!notif.isRead"></div>
+
+                <button mat-icon-button class="delete-btn" (click)="deleteNotification(notif._id)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </ng-container>
+  </div>
+
+  <!-- Футер винесено ЗА межі .profile-page -->
+  <app-footer></app-footer>
+
 </div>

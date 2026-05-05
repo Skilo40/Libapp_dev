@@ -1,5 +1,6 @@
 import Loan from '../models/Loan.js';
 import Book from '../models/Book.js';
+import Notification from '../models/Notification.js';
 import { audit } from '../services/auditService.js';
 
 export const getLoans = async (req, res, next) => {
@@ -55,6 +56,18 @@ export const createLoan = async (req, res, next) => {
     book.availableCopies -= 1;
     await book.save();
 
+    try {
+      await Notification.create({
+        member: memberId,
+        title: 'Книгу видано',
+        text: `Ви успішно отримали книгу "${book.title}". Будь ласка, поверніть її до ${new Date(dueDate).toLocaleDateString('uk-UA')}.`,
+        type: 'loan_issued',
+        isRead: false
+      });
+    } catch (notifErr) {
+      console.error(notifErr);
+    }
+
     await audit({
       action: 'LOAN_CREATED',
       entityType: 'loan',
@@ -82,7 +95,19 @@ export const returnLoan = async (req, res, next) => {
     loan.status = 'returned';
     await loan.save();
 
-    await Book.findByIdAndUpdate(loan.book, { $inc: { availableCopies: 1 } });
+    const book = await Book.findByIdAndUpdate(loan.book, { $inc: { availableCopies: 1 } });
+
+    try {
+      await Notification.create({
+        member: loan.member,
+        title: 'Книгу повернено',
+        text: `Дякуємо! Книгу "${book ? book.title : 'Невідома книга'}" успішно повернено до бібліотеки.`,
+        type: 'loan_returned',
+        isRead: false
+      });
+    } catch (notifErr) {
+      console.error(notifErr);
+    }
 
     await audit({
       action: 'LOAN_RETURNED',

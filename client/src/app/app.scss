@@ -1,0 +1,28 @@
+.menu-user-info {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  outline: none;
+  min-width: 220px;
+  box-sizing: border-box;
+}
+
+.menu-user-info strong {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.menu-user-info span {
+  font-size: 13px;
+  color: #757575;
+  line-height: 1.2;
+}
+
+/* Обмеження ширини для панелі меню */
+.mat-mdc-menu-panel {
+  max-width: 320px !important;
+}

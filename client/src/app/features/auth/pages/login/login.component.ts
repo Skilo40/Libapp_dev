@@ -46,7 +46,19 @@ export class LoginComponent {
     this.loading = true;
 
     this.auth.login(this.form.value).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => {
+        // Перевіряємо роль через сервіс авторизації
+        if (this.auth.isAdmin()) {
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.router.navigate(['/catalog']);
+        }
+        
+        this.snackBar.open('Вітаємо у системі!', 'OK', { 
+          duration: 3000,
+          panelClass: 'success' 
+        });
+      },
       error: (err) => {
         this.loading = false;
         this.snackBar.open(

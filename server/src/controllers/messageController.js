@@ -1,13 +1,24 @@
 import Message from '../models/Message.js';
 import Notification from '../models/Notification.js';
+import Member from '../models/Member.js';
 import { sendMessageReply } from '../services/mailService.js';
 
 export const createMessage = async (req, res, next) => {
   try {
     const { name, email, subject, text, memberId } = req.body;
+    
+    let finalMemberId = memberId;
+    
+    if (!finalMemberId && email) {
+      const existingMember = await Member.findOne({ email });
+      if (existingMember) {
+        finalMemberId = existingMember._id;
+      }
+    }
+
     const message = await Message.create({
       name, email, subject, text,
-      member: memberId || null,
+      member: finalMemberId || null,
     });
     res.status(201).json({ message });
   } catch (err) {
@@ -42,15 +53,18 @@ export const replyMessage = async (req, res, next) => {
     await message.save();
 
     if (message.member) {
-      // Авторизований — сповіщення в кабінет
-      await Notification.create({
-        member: message.member,
-        title: 'Відповідь на ваше звернення',
-        text: replyText,
-        type: 'message_reply',
-      });
+      try {
+        await Notification.create({
+          member: message.member,
+          title: 'Відповідь на ваше звернення',
+          text: replyText,
+          type: 'admin_reply',
+          isRead: false
+        });
+      } catch (notifErr) {
+        console.error(notifErr);
+      }
     } else {
-      // Неавторизований — надіслати email
       try {
         await sendMessageReply({
           to: message.email,
@@ -59,7 +73,7 @@ export const replyMessage = async (req, res, next) => {
           replyText,
         });
       } catch (mailErr) {
-        console.error('Email помилка:', mailErr.message);
+        console.error(mailErr.message);
       }
     }
 

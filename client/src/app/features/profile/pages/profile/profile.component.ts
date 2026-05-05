@@ -14,6 +14,7 @@ import { NotificationService } from '../../../../core/services/notification';
 import { Member } from '../../../../core/models/member.model';
 import { Loan } from '../../../../core/models/loan.model';
 import { Notification } from '../../../../core/models/notification.model';
+import { FooterComponent } from '../../../../shared/components/footer/footer';
 
 @Component({
   selector: 'app-profile',
@@ -23,6 +24,7 @@ import { Notification } from '../../../../core/models/notification.model';
     MatIconModule, MatButtonModule, MatInputModule,
     MatFormFieldModule, MatProgressSpinnerModule,
     MatSnackBarModule, MatTabsModule,
+    FooterComponent
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.scss'
@@ -55,6 +57,7 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
+    
     this.profileService.get(id).subscribe({
       next: (res) => {
         this.member = res.member;
@@ -96,6 +99,22 @@ export class ProfileComponent implements OnInit {
     this.notificationService.markRead(this.member!._id).subscribe(() => {
       this.notifications = this.notifications.map(n => ({ ...n, isRead: true }));
       this.unread = 0;
+    });
+  }
+
+  deleteNotification(notificationId: string) {
+    this.notificationService.delete(notificationId).subscribe({
+      next: () => {
+        const notification = this.notifications.find(n => n._id === notificationId);
+        if (notification && !notification.isRead) {
+          this.unread--;
+        }
+        this.notifications = this.notifications.filter(n => n._id !== notificationId);
+        this.snackBar.open('Сповіщення видалено', 'OK', { duration: 2000 });
+      },
+      error: () => {
+        this.snackBar.open('Помилка видалення', 'OK', { duration: 3000, panelClass: 'error' });
+      }
     });
   }
 

@@ -1,1 +1,44 @@
-<p>footer works!</p>
+<footer class="catalog-footer">
+  <div class="footer-content">
+    <div class="footer-info">
+      <div class="footer-logo">
+        <mat-icon>local_library</mat-icon>
+        <span>Нововоронцовська районна бібліотека</span>
+      </div>
+      <p>Публічна бібліотека — місце знань та натхнення</p>
+      <div class="footer-contacts">
+        <span><mat-icon>location_on</mat-icon> вул. Воронцова, 9</span>
+        <span><mat-icon>phone</mat-icon> +380 093 593 2079</span>
+        <span><mat-icon>schedule</mat-icon> Пн-Чт: 08:00–17:00</span>
+        <span style="margin-left: 28px;">Пт-Сб: 08:00–15:45</span>
+        <span style="margin-left: 28px;">Нд: Вихідний</span>
+      </div>
+    </div>
+
+    <div class="footer-contact-form">
+      <h3>Зв'яжіться з нами</h3>
+      <p>Маєте питання? Напишіть нам і ми відповімо якнайшвидше.</p>
+      <button mat-flat-button class="contact-btn" (click)="showContactModal = true">
+        <mat-icon>send</mat-icon>
+        Написати повідомлення
+      </button>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2026 Нововоронцовська районна бібліотека. Всі права захищені.</span>
+  </div>
+</footer>
+
+<!-- Contact Modal -->
+<div class="modal-overlay" *ngIf="showContactModal" (click)="closeModal($event)">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>Написати повідомлення</h2>
+      <button mat-icon-button (click)="showContactModal = false">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <app-contact-form></app-contact-form>
+  </div>
+</div>
