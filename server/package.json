@@ -6,7 +6,9 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "create-admin": "node src/scripts/createAdmin.js",
-    "seed": "node src/scripts/seedData.js"
+    "seed": "node src/scripts/seedData.js",
+    "update-trigrams": "node src/scripts/updateTrigrams.js",
+    "reset-db": "node src/scripts/resetDatabase.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

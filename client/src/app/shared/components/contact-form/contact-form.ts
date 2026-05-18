@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MessageService } from '../../../core/services/message';
-import { AuthService } from '../../../core/services/auth';
+import { StateService } from '../../../core/services/state';
 
 @Component({
   selector: 'app-contact-form',
@@ -28,7 +28,7 @@ export class ContactFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private messageService: MessageService,
-    private authService: AuthService,
+    private state: StateService,
     private snackBar: MatSnackBar,
   ) {
     this.form = this.fb.group({
@@ -40,25 +40,12 @@ export class ContactFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Якщо користувач залогінений - автоматично заповнити name та email
-    const user = this.authService.currentUser();
+    const user = this.state.currentUser();
     if (user) {
-      let fullName = '';
-      
-      // Спочатку спробуємо firstName + lastName
-      if (user.firstName || user.lastName) {
-        fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
-      } 
-      // Якщо їх немає - використаємо name
-      else if (user.name) {
-        fullName = user.name;
-      }
-
       this.form.patchValue({
-        name: fullName,
-        email: user.email,
+        name: user.name || '',
+        email: user.email || '',
       });
-      // Заблокувати ці поля для редагування
       this.form.get('name')?.disable();
       this.form.get('email')?.disable();
     }
@@ -68,12 +55,14 @@ export class ContactFormComponent implements OnInit {
     if (this.form.invalid) return;
     this.saving = true;
 
-    // Отримати значення включаючи disabled поля
     const formValue = {
       name: this.form.get('name')?.value,
       email: this.form.get('email')?.value,
       subject: this.form.get('subject')?.value,
       text: this.form.get('text')?.value,
+      memberId: this.state.currentUser()?.role === 'member'
+        ? this.state.currentUser()?._id
+        : undefined,
     };
 
     this.messageService.create(formValue).subscribe({

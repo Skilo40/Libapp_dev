@@ -35,7 +35,6 @@ export class RegisterComponent {
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      phone: [''],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
@@ -46,7 +45,7 @@ export class RegisterComponent {
 
     this.auth.register(this.form.value).subscribe({
       next: () => {
-        this.snackBar.open('Реєстрація успішна! Перевірте вашу пошту.', 'OK', { duration: 4000, panelClass: 'success' });
+        this.snackBar.open('Реєстрація успішна!', 'OK', { duration: 3000, panelClass: 'success' });
         this.router.navigate(['/catalog']);
       },
       error: (err) => {

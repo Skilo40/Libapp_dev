@@ -1,12 +1,12 @@
 export interface User {
   _id: string;
-  name?: string;
-  firstName?: string;
-  lastName?: string;
+  name: string;
   email: string;
-  phone?: string;
   role: 'admin' | 'librarian' | 'member';
   memberId?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
   isActive?: boolean;
   createdAt?: string;
 }
@@ -22,7 +22,9 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
+  phone?: string;
 }

@@ -8,10 +8,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CatalogService } from '../../../../core/services/catalog';
 import { BookingService } from '../../../../core/services/booking';
 import { AuthService } from '../../../../core/services/auth';
+import { StateService } from '../../../../core/services/state';
 import { Book } from '../../../../core/models/book.model';
 import { Review } from '../../../../core/models/review.model';
 
@@ -22,7 +22,7 @@ import { Review } from '../../../../core/models/review.model';
     CommonModule, NgFor, NgIf, RouterLink,
     ReactiveFormsModule, MatIconModule, MatButtonModule,
     MatInputModule, MatFormFieldModule,
-    MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule,
+    MatProgressSpinnerModule, MatSnackBarModule,
   ],
   templateUrl: './book-detail.html',
   styleUrl: './book-detail.scss'
@@ -50,6 +50,7 @@ export class BookDetailComponent implements OnInit {
     private catalogService: CatalogService,
     private bookingService: BookingService,
     private authService: AuthService,
+    private state: StateService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
   ) {
@@ -76,8 +77,24 @@ export class BookDetailComponent implements OnInit {
         this.avgRating = res.avgRating;
         this.similar = res.similar;
         this.loading = false;
+        this.prefillBookingForm();
       },
       error: () => { this.loading = false; }
+    });
+  }
+
+  prefillBookingForm() {
+    const user = this.state.currentUser();
+    if (!user) return;
+
+    const nameParts = user.name?.trim().split(' ') || [];
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    this.bookingForm.patchValue({
+      firstName,
+      lastName,
+      email: user.email || '',
     });
   }
 
@@ -86,70 +103,63 @@ export class BookDetailComponent implements OnInit {
   }
 
   get currentUser() {
-    return this.authService.currentUser();
+    return this.state.currentUser();
   }
 
   onBookingClick() {
     if (!this.book) return;
-    
-    // Якщо залогінений - робити booking одразу
     if (this.isLoggedIn) {
       this.quickBooking();
     } else {
-      // Якщо не залогінений - запропонувати логін
-      this.showAuthPrompt();
+      this.showBookingForm = !this.showBookingForm;
     }
   }
 
   onReviewClick() {
-    // Якщо не залогінений - запропонувати логін
     if (!this.isLoggedIn) {
-      this.showAuthPrompt();
+      this.snackBar.open('Увійдіть щоб залишити відгук', 'Увійти', {
+        duration: 5000,
+      }).onAction().subscribe(() => {
+        window.location.href = '/login';
+      });
     } else {
       this.showReviewForm = !this.showReviewForm;
-    }
-  }
 
-  showAuthPrompt() {
-    const message = 'Для цієї дії потрібна авторизація. Будь ласка, увійдіть або зареєструйтесь.';
-    this.snackBar.open(message, 'Логін', { 
-      duration: 5000,
-      panelClass: 'auth-prompt'
-    }).onAction().subscribe(() => {
-      window.location.href = '/login';
-    });
+      const user = this.state.currentUser();
+      if (user && this.showReviewForm) {
+        this.reviewForm.patchValue({ authorName: user.name });
+      }
+    }
   }
 
   quickBooking() {
     if (!this.book) return;
     this.savingBooking = true;
 
-    const user = this.currentUser;
-    let firstName = user?.firstName || '';
-    let lastName = user?.lastName || '';
-
-    // Якщо firstName/lastName не знайдені, розділити name поле
-    if (!firstName && !lastName && user?.name) {
-      const nameParts = user.name.trim().split(' ');
-      firstName = nameParts[0] || '';
-      lastName = nameParts.slice(1).join(' ') || '';
-    }
+    const user = this.state.currentUser();
+    const nameParts = user?.name?.trim().split(' ') || [];
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
 
     this.bookingService.create({
       firstName,
       lastName,
       email: user?.email || '',
-      phone: user?.phone || '',
       notes: '',
       bookId: this.book._id,
+      memberId: user?.role === 'member' ? user._id : undefined,
     }).subscribe({
       next: () => {
         this.savingBooking = false;
-        this.snackBar.open('Книгу успішно забронировано!', 'OK', { duration: 4000, panelClass: 'success' });
+        this.snackBar.open('Книгу успішно забронійовано!', 'OK', {
+          duration: 4000, panelClass: 'success'
+        });
       },
       error: (err) => {
         this.savingBooking = false;
-        this.snackBar.open(err.error?.message || 'Помилка при бронюванні', 'OK', { duration: 3000, panelClass: 'error' });
+        this.snackBar.open(err.error?.message || 'Помилка при бронюванні', 'OK', {
+          duration: 3000, panelClass: 'error'
+        });
       },
     });
   }
@@ -158,19 +168,26 @@ export class BookDetailComponent implements OnInit {
     if (this.bookingForm.invalid) return;
     this.savingBooking = true;
 
+    const user = this.state.currentUser();
+
     this.bookingService.create({
       ...this.bookingForm.value,
       bookId: this.book!._id,
+      memberId: user?.role === 'member' ? user._id : undefined,
     }).subscribe({
       next: () => {
         this.savingBooking = false;
         this.showBookingForm = false;
         this.bookingForm.reset();
-        this.snackBar.open('Заявку на бронювання подано!', 'OK', { duration: 4000, panelClass: 'success' });
+        this.snackBar.open('Заявку на бронювання подано!', 'OK', {
+          duration: 4000, panelClass: 'success'
+        });
       },
       error: (err) => {
         this.savingBooking = false;
-        this.snackBar.open(err.error?.message || 'Помилка', 'OK', { duration: 3000, panelClass: 'error' });
+        this.snackBar.open(err.error?.message || 'Помилка', 'OK', {
+          duration: 3000, panelClass: 'error'
+        });
       },
     });
   }
@@ -179,9 +196,12 @@ export class BookDetailComponent implements OnInit {
     if (this.reviewForm.invalid || this.selectedRating === 0) return;
     this.savingReview = true;
 
+    const user = this.state.currentUser();
+
     this.catalogService.createReview(this.book!._id, {
       ...this.reviewForm.value,
       rating: this.selectedRating,
+      memberId: user?.role === 'member' ? user._id : undefined,
     }).subscribe({
       next: (res) => {
         this.reviews.unshift(res.review);

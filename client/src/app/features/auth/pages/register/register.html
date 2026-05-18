@@ -7,29 +7,31 @@
     </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()">
-      <mat-form-field appearance="outline">
-        <mat-label>Ім'я</mat-label>
-        <input matInput formControlName="firstName" placeholder="Іван">
-        <mat-icon matSuffix>person</mat-icon>
-        <mat-error *ngIf="form.get('firstName')?.hasError('required')">
-          Ім'я обов'язкове
-        </mat-error>
-        <mat-error *ngIf="form.get('firstName')?.hasError('minlength')">
-          Мінімум 2 символи
-        </mat-error>
-      </mat-form-field>
+      <div class="name-row">
+        <mat-form-field appearance="outline" class="name-field">
+          <mat-label>Ім'я</mat-label>
+          <input matInput formControlName="firstName" placeholder="Іван">
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error *ngIf="form.get('firstName')?.hasError('required')">
+            Ім'я обов'язкове
+          </mat-error>
+          <mat-error *ngIf="form.get('firstName')?.hasError('minlength')">
+            Мінімум 2 символи
+          </mat-error>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Прізвище</mat-label>
-        <input matInput formControlName="lastName" placeholder="Петренко">
-        <mat-icon matSuffix>person</mat-icon>
-        <mat-error *ngIf="form.get('lastName')?.hasError('required')">
-          Прізвище обов'язкове
-        </mat-error>
-        <mat-error *ngIf="form.get('lastName')?.hasError('minlength')">
-          Мінімум 2 символи
-        </mat-error>
-      </mat-form-field>
+        <mat-form-field appearance="outline" class="name-field">
+          <mat-label>Прізвище</mat-label>
+          <input matInput formControlName="lastName" placeholder="Петренко">
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error *ngIf="form.get('lastName')?.hasError('required')">
+            Прізвище обов'язкове
+          </mat-error>
+          <mat-error *ngIf="form.get('lastName')?.hasError('minlength')">
+            Мінімум 2 символи
+          </mat-error>
+        </mat-form-field>
+      </div>
 
       <mat-form-field appearance="outline">
         <mat-label>Email</mat-label>
@@ -41,12 +43,6 @@
         <mat-error *ngIf="form.get('email')?.hasError('email')">
           Невірний формат email
         </mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Телефон (опціонально)</mat-label>
-        <input matInput formControlName="phone" placeholder="+38 (0XX) XXX-XX-XX">
-        <mat-icon matSuffix>phone</mat-icon>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -76,5 +72,10 @@
       Вже є акаунт?
       <a routerLink="/login">Увійти</a>
     </div>
+
+    <a routerLink="/catalog" mat-button class="back-link">
+      <mat-icon>arrow_back</mat-icon>
+      Повернутись до каталогу
+    </a>
   </div>
 </div>

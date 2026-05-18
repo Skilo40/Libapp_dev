@@ -12,15 +12,14 @@ export interface CatalogFilters {
 
 @Injectable({ providedIn: 'root' })
 export class StateService {
-  // Auth state
   currentUser = signal<User | null>(null);
   currentMember = signal<Member | null>(null);
 
   isLoggedIn = computed(() => !!this.currentUser());
   isAdmin = computed(() => this.currentUser()?.role === 'admin');
   isLibrarian = computed(() => this.currentUser()?.role === 'librarian');
+  isMember = computed(() => this.currentUser()?.role === 'member');
 
-  // Catalog filters state
   catalogFilters = signal<CatalogFilters>({
     search: '',
     selectedGenre: '',

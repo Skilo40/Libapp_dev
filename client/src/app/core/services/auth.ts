@@ -3,15 +3,7 @@ import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { ApiService } from './api';
 import { StateService } from './state';
-import { User, AuthResponse, LoginRequest } from '../models/user.model';
-
-export interface RegisterRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  password: string;
-}
+import { AuthResponse, LoginRequest, RegisterRequest } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

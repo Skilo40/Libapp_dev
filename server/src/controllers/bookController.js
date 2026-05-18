@@ -1,5 +1,6 @@
 import Book from '../models/Book.js';
 import { audit } from '../services/auditService.js';
+import { generateTrigrams } from '../services/trigramService.js';
 
 export const getBooks = async (req, res, next) => {
   try {
@@ -58,6 +59,11 @@ export const updateBook = async (req, res, next) => {
     const old = await Book.findById(req.params.id);
     if (!old) return res.status(404).json({ message: 'Книгу не знайдено' });
 
+    // Якщо оновлюємо назву, регенеруємо триграми
+    if (req.body.title) {
+      req.body.trigrams = generateTrigrams(req.body.title);
+    }
+
     const book = await Book.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -97,6 +103,24 @@ export const deleteBook = async (req, res, next) => {
     });
 
     res.json({ message: 'Книгу видалено' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteAllBooks = async (req, res, next) => {
+  try {
+    const result = await Book.deleteMany({});
+
+    await audit({
+      action: 'ALL_BOOKS_DELETED',
+      entityType: 'book',
+      performedBy: req.user._id,
+      newValue: { deletedCount: result.deletedCount },
+      ip: req.ip,
+    });
+
+    res.json({ message: `Видалено ${result.deletedCount} книг` });
   } catch (err) {
     next(err);
   }

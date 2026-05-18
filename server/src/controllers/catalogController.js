@@ -1,5 +1,6 @@
 import Book from '../models/Book.js';
 import Review from '../models/Review.js';
+import { generateTrigrams, calculateSimilarity } from '../services/trigramService.js';
 
 export const getBooks = async (req, res, next) => {
   try {
@@ -7,18 +8,40 @@ export const getBooks = async (req, res, next) => {
     const filter = {};
 
     if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { author: { $regex: search, $options: 'i' } },
-        { isbn: { $regex: search, $options: 'i' } },
-      ];
+      const trigrams = generateTrigrams(search);
+      
+      if (trigrams.length > 0) {
+        // Пошук за триграмами з назви книги
+        filter.$or = [
+          { trigrams: { $in: trigrams } },
+          { title: { $regex: search, $options: 'i' } },
+          { author: { $regex: search, $options: 'i' } },
+          { isbn: { $regex: search, $options: 'i' } },
+        ];
+      } else {
+        // Якщо пошук коротший за 3 символи, використовуємо звичайний regex
+        filter.$or = [
+          { title: { $regex: search, $options: 'i' } },
+          { author: { $regex: search, $options: 'i' } },
+          { isbn: { $regex: search, $options: 'i' } },
+        ];
+      }
     }
+    
     if (genre) filter.genre = genre;
     if (language) filter.language = language;
     if (available === 'true') filter.availableCopies = { $gt: 0 };
 
     const sortOrder = order === 'asc' ? 1 : -1;
-    const books = await Book.find(filter).sort({ [sortBy]: sortOrder });
+    let books = await Book.find(filter).sort({ [sortBy]: sortOrder });
+
+    // Якщо є пошуковий запит, ранжуємо результати за подібністю триграм
+    if (search && generateTrigrams(search).length > 0) {
+      books = books.map(book => ({
+        ...book.toObject(),
+        _similarity: calculateSimilarity(search, book.trigrams || []),
+      })).sort((a, b) => b._similarity - a._similarity);
+    }
 
     res.json({ books, total: books.length });
   } catch (err) {

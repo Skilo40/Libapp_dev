@@ -11,10 +11,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ProfileService } from '../../../../core/services/profile';
 import { NotificationService } from '../../../../core/services/notification';
+import { BookingService } from '../../../../core/services/booking';
+import { StateService } from '../../../../core/services/state';
 import { Member } from '../../../../core/models/member.model';
 import { Loan } from '../../../../core/models/loan.model';
 import { Notification } from '../../../../core/models/notification.model';
-import { FooterComponent } from '../../../../shared/components/footer/footer';
+import { Booking } from '../../../../core/models/booking.model';
 
 @Component({
   selector: 'app-profile',
@@ -24,7 +26,6 @@ import { FooterComponent } from '../../../../shared/components/footer/footer';
     MatIconModule, MatButtonModule, MatInputModule,
     MatFormFieldModule, MatProgressSpinnerModule,
     MatSnackBarModule, MatTabsModule,
-    FooterComponent
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.scss'
@@ -33,6 +34,7 @@ export class ProfileComponent implements OnInit {
   member: Member | null = null;
   loans: Loan[] = [];
   notifications: Notification[] = [];
+  bookings: Booking[] = [];
   unread = 0;
   loading = true;
   saving = false;
@@ -43,6 +45,8 @@ export class ProfileComponent implements OnInit {
     private route: ActivatedRoute,
     private profileService: ProfileService,
     private notificationService: NotificationService,
+    private bookingService: BookingService,
+    public state: StateService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
   ) {
@@ -57,7 +61,7 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
-    
+
     this.profileService.get(id).subscribe({
       next: (res) => {
         this.member = res.member;
@@ -74,6 +78,10 @@ export class ProfileComponent implements OnInit {
     this.notificationService.getAll(id).subscribe(res => {
       this.notifications = res.notifications;
       this.unread = res.unread;
+    });
+
+    this.bookingService.getMemberBookings(id).subscribe(res => {
+      this.bookings = res.bookings;
     });
   }
 
@@ -102,27 +110,27 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  deleteNotification(notificationId: string) {
-    this.notificationService.delete(notificationId).subscribe({
-      next: () => {
-        const notification = this.notifications.find(n => n._id === notificationId);
-        if (notification && !notification.isRead) {
-          this.unread--;
-        }
-        this.notifications = this.notifications.filter(n => n._id !== notificationId);
-        this.snackBar.open('Сповіщення видалено', 'OK', { duration: 2000 });
-      },
-      error: () => {
-        this.snackBar.open('Помилка видалення', 'OK', { duration: 3000, panelClass: 'error' });
-      }
-    });
-  }
-
   getLoanStatus(loan: Loan): { label: string; class: string } {
     if (loan.status === 'returned') return { label: 'Повернено', class: 'returned' };
     const daysLeft = Math.ceil((new Date(loan.dueDate).getTime() - Date.now()) / 86400000);
     if (daysLeft < 0) return { label: 'Прострочено', class: 'overdue' };
     if (daysLeft <= 3) return { label: `Повернути за ${daysLeft} дн.`, class: 'warning' };
     return { label: 'Активна', class: 'active' };
+  }
+
+  getBookingStatus(booking: Booking): { label: string; class: string } {
+    const map: Record<string, { label: string; class: string }> = {
+      pending:   { label: 'Очікує розгляду', class: 'pending' },
+      approved:  { label: 'Схвалено', class: 'approved' },
+      picked_up: { label: 'Книгу забрано', class: 'picked_up' },
+      rejected:  { label: 'Відхилено', class: 'rejected' },
+      cancelled: { label: 'Скасовано', class: 'cancelled' },
+    };
+    return map[booking.status] || { label: booking.status, class: '' };
+  }
+
+  isCurrentUser(): boolean {
+    return this.state.currentUser()?._id === this.member?._id ||
+           this.state.currentUser()?.role === 'admin';
   }
 }
