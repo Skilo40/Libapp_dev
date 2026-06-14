@@ -30,9 +30,9 @@ services:
       JWT_EXPIRES_IN: 7d
       SMTP_HOST: smtp.gmail.com
       SMTP_PORT: 587
-      SMTP_USER: your@gmail.com
-      SMTP_PASS: your_app_password
-      MAIL_FROM: Library App <your@gmail.com>
+      SMTP_USER: nvorlibrary@gmail.com
+      SMTP_PASS: njcw xnyx lrfm vafp
+      MAIL_FROM: Library App <nvorlibrary@gmail.com>
       NOTIFY_DAYS_BEFORE: 3
     networks:
       - library_net
