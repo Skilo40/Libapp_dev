@@ -38,6 +38,9 @@ export class LoanFormComponent implements OnInit {
   filteredBooks: Book[] = [];
   filteredMembers: Member[] = [];
   minDate = new Date();
+  selectedMember: Member | null = null;
+  memberLoans: any[] = [];
+  showLoanHistory = false;
 
   constructor(
     private fb: FormBuilder,

@@ -10,7 +10,7 @@ const memberSchema = new mongoose.Schema({
   dateOfBirth: { type: Date },
   membershipDate: { type: Date, default: Date.now },
   isActive: { type: Boolean, default: true },
-  avatarUrl: { type: String },
+  avatar: { type: String }, // base64 data URL
   password: { type: String },
   role: { type: String, enum: ['member'], default: 'member' },
 }, { timestamps: true });

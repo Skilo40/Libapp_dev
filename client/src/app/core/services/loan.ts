@@ -21,4 +21,8 @@ export class LoanService {
   return(id: string) {
     return this.api.patch<{ loan: Loan }>(`/loans/${id}/return`);
   }
+
+  extend(id: string, days: number) {
+    return this.api.patch<{ loan: Loan }>(`/loans/${id}/extend`, { days });
+  }
 }

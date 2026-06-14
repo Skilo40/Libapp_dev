@@ -14,6 +14,11 @@ const auditLogSchema = new mongoose.Schema({
   },
   entityType: { type: String, enum: ['user', 'book', 'member', 'loan', 'stock'] },
   entityId: { type: mongoose.Schema.Types.ObjectId },
+  
+  // Додані нові поля для зрозумілого відображення на фронтенді
+  entityName: { type: String }, 
+  details: { type: String },    
+
   performedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   oldValue: { type: mongoose.Schema.Types.Mixed },
   newValue: { type: mongoose.Schema.Types.Mixed },

@@ -27,6 +27,10 @@ export class ApiService {
     return this.http.patch<T>(`${this.base}${path}`, body);
   }
 
+  patchWithFile<T>(path: string, formData: FormData): Observable<T> {
+    return this.http.patch<T>(`${this.base}${path}`, formData);
+  }
+
   delete<T>(path: string): Observable<T> {
     return this.http.delete<T>(`${this.base}${path}`);
   }

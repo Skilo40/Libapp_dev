@@ -266,19 +266,19 @@
 
     .book-cover {
       width: 100%;
-      height: 250px; 
+      position: relative;
       overflow: hidden;
-      background-color: #f5f5f5;
+      /* Задаємо стандартну пропорцію для книг (приблизно 2:3). 
+        Це зробить всі картки однакової висоти незалежно від контенту */
+      aspect-ratio: 2 / 3; 
+      /* Або, якщо ти використовуєш фіксовану висоту, залиш її, наприклад: height: 280px; */
+      
       display: flex;
-      align-items: center;
       justify-content: center;
-
-      @media (max-width: 600px) { height: 150px; }
-
-      img { width: 100%;
-    height: 100%;
-    object-fit: cover; 
-    display: block; }
+      align-items: center;
+      background-color: #f3f4f6; /* Легкий фон, поки картинка вантажиться */
+      border-radius: 8px 8px 0 0; /* Якщо у картки є заокруглення зверху */
+      }
 
       mat-icon {
         font-size: 64px;
@@ -288,7 +288,13 @@
         opacity: 0.5;
       }
     }
-
+        .book-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* Ключова властивість! Картинка заповнить блок, обрізавши зайве, але не стиснеться */
+      object-position: center; /* Центруємо зображення, щоб головна частина залишалася в кадрі */
+      display: block;
+    }
     .book-body {
       padding: 14px;
       flex: 1;
@@ -486,7 +492,6 @@
 
 ::ng-deep .mat-mdc-menu-panel {
   max-width: 280px !important;
-}
 }
 
 // Глобальні або компонентні стилі для меню

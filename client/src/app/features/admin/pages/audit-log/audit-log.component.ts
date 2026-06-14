@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, NgIf, NgFor } from '@angular/common';
+import { CommonModule, NgIf, NgFor, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,7 +16,7 @@ import { AuditLog } from '../../../../core/models/audit-log.model';
   selector: 'app-audit-log',
   standalone: true,
   imports: [
-    CommonModule, NgIf, NgFor, FormsModule, RouterLink,
+    CommonModule, NgIf, NgFor, FormsModule, RouterLink, DatePipe,
     MatIconModule, MatButtonModule, MatInputModule,
     MatFormFieldModule, MatSelectModule,
     MatProgressSpinnerModule, MatSnackBarModule,
@@ -34,12 +34,27 @@ export class AuditLogComponent implements OnInit {
   entityTypeFilter = '';
   actionFilter = '';
 
-  entityTypes = ['book', 'member', 'loan', 'stock', 'user'];
+  entityTypes = [
+    { id: 'book', name: 'Книги' },
+    { id: 'member', name: 'Читачі' },
+    { id: 'loan', name: 'Позики' },
+    { id: 'stock', name: 'Запаси' },
+    { id: 'user', name: 'Персонал' }
+  ];
+
   actions = [
-    'BOOK_CREATED', 'BOOK_UPDATED', 'BOOK_DELETED',
-    'MEMBER_CREATED', 'MEMBER_UPDATED', 'MEMBER_DELETED',
-    'LOAN_CREATED', 'LOAN_RETURNED', 'LOAN_UPDATED',
-    'STOCK_UPDATED', 'LOGIN', 'USER_CREATED',
+    { id: 'BOOK_CREATED', name: 'Створення книги' },
+    { id: 'BOOK_UPDATED', name: 'Оновлення книги' },
+    { id: 'BOOK_DELETED', name: 'Видалення книги' },
+    { id: 'MEMBER_CREATED', name: 'Реєстрація читача' },
+    { id: 'MEMBER_UPDATED', name: 'Оновлення читача' },
+    { id: 'MEMBER_DELETED', name: 'Видалення читача' },
+    { id: 'LOAN_CREATED', name: 'Видача книги' },
+    { id: 'LOAN_RETURNED', name: 'Повернення книги' },
+    { id: 'LOAN_UPDATED', name: 'Оновлення позики' },
+    { id: 'STOCK_UPDATED', name: 'Зміна запасів' },
+    { id: 'LOGIN', name: 'Вхід в систему' },
+    { id: 'USER_CREATED', name: 'Створення працівника' },
   ];
 
   constructor(private adminService: AdminService) {}
@@ -76,6 +91,29 @@ export class AuditLogComponent implements OnInit {
     this.actionFilter = '';
     this.currentPage = 1;
     this.load();
+  }
+
+  getActionBadgeLabel(action: string): string {
+    const found = this.actions.find(a => a.id === action);
+    return found ? found.name : action;
+  }
+
+  getActionMessage(log: AuditLog): string {
+    switch (log.action) {
+      case 'BOOK_CREATED': return 'Додано нову книгу до каталогу';
+      case 'BOOK_UPDATED': return 'Оновлено інформацію про книгу';
+      case 'BOOK_DELETED': return 'Книгу видалено з каталогу';
+      case 'MEMBER_CREATED': return 'Зареєстровано нового читача';
+      case 'MEMBER_UPDATED': return 'Оновлено профіль читача';
+      case 'MEMBER_DELETED': return 'Профіль читача видалено';
+      case 'LOAN_CREATED': return 'Оформлено нову позику (видано книгу)';
+      case 'LOAN_RETURNED': return 'Читач повернув книгу в бібліотеку';
+      case 'LOAN_UPDATED': return 'Оновлено статус позики';
+      case 'STOCK_UPDATED': return 'Змінено кількість примірників';
+      case 'LOGIN': return 'Успішний вхід в систему';
+      case 'USER_CREATED': return 'Створено обліковий запис працівника';
+      default: return 'Виконано системну дію';
+    }
   }
 
   getActionColor(action: string): string {

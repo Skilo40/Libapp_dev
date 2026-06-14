@@ -13,7 +13,7 @@
       <mat-label>Тип сутності</mat-label>
       <mat-select [(ngModel)]="entityTypeFilter" (ngModelChange)="load()">
         <mat-option value="">Всі</mat-option>
-        <mat-option *ngFor="let type of entityTypes" [value]="type">{{ type }}</mat-option>
+        <mat-option *ngFor="let type of entityTypes" [value]="type.id">{{ type.name }}</mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -21,7 +21,7 @@
       <mat-label>Дія</mat-label>
       <mat-select [(ngModel)]="actionFilter" (ngModelChange)="load()">
         <mat-option value="">Всі</mat-option>
-        <mat-option *ngFor="let action of actions" [value]="action">{{ action }}</mat-option>
+        <mat-option *ngFor="let action of actions" [value]="action.id">{{ action.name }}</mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -46,27 +46,35 @@
 
   <div class="logs-list" *ngIf="!loading && logs.length > 0">
     <div class="log-item" *ngFor="let log of logs">
+      
       <div class="log-action">
         <span class="action-badge" [ngClass]="getActionColor(log.action)">
-          {{ log.action }}
+          {{ getActionBadgeLabel(log.action) }}
         </span>
       </div>
-      <div class="log-entity">
-        <span class="entity-type">{{ log.entityType }}</span>
-        <span class="entity-id">{{ log.entityId }}</span>
+
+      <div class="log-details">
+        <span class="detail-message">{{ getActionMessage(log) }}</span>
+        
+        <span class="detail-entity" *ngIf="log.entityName || log.entityId">
+          <strong>Об'єкт:</strong> {{ log.entityName || 'ID: ' + log.entityId }}
+        </span>
+
+        <span class="detail-changes" *ngIf="log.details">
+          <strong>Зміни:</strong> {{ log.details }}
+        </span>
       </div>
+
       <div class="log-user">
         <mat-icon>person</mat-icon>
         <span>{{ log.performedBy ? log.performedBy.name : 'Система' }}</span>
       </div>
+
       <div class="log-time">
         <mat-icon>access_time</mat-icon>
         <span>{{ log.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
       </div>
-      <div class="log-ip" *ngIf="log.ip">
-        <mat-icon>router</mat-icon>
-        <span>{{ log.ip }}</span>
-      </div>
+
     </div>
   </div>
 

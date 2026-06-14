@@ -40,6 +40,8 @@ export class ProfileComponent implements OnInit {
   saving = false;
   editMode = false;
   form: FormGroup;
+  selectedAvatar: File | null = null;
+  avatarPreview: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -55,7 +57,6 @@ export class ProfileComponent implements OnInit {
       lastName: ['', Validators.required],
       phone: [''],
       address: [''],
-      avatarUrl: [''],
     });
   }
 
@@ -89,11 +90,22 @@ export class ProfileComponent implements OnInit {
     if (this.form.invalid) return;
     this.saving = true;
 
-    this.profileService.update(this.member!._id, this.form.value).subscribe({
+    const formData = new FormData();
+    formData.append('firstName', this.form.get('firstName')?.value);
+    formData.append('lastName', this.form.get('lastName')?.value);
+    formData.append('phone', this.form.get('phone')?.value || '');
+    formData.append('address', this.form.get('address')?.value || '');
+    if (this.selectedAvatar) {
+      formData.append('avatar', this.selectedAvatar);
+    }
+
+    this.profileService.updateWithFile(this.member!._id, formData).subscribe({
       next: (res) => {
         this.member = res.member;
         this.saving = false;
         this.editMode = false;
+        this.selectedAvatar = null;
+        this.avatarPreview = null;
         this.snackBar.open('Профіль оновлено', 'OK', { duration: 3000, panelClass: 'success' });
       },
       error: () => {
@@ -101,6 +113,25 @@ export class ProfileComponent implements OnInit {
         this.snackBar.open('Помилка збереження', 'OK', { duration: 3000, panelClass: 'error' });
       },
     });
+  }
+
+  onAvatarSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (!file) return;
+
+    this.selectedAvatar = file;
+
+    // Показати превью
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.avatarPreview = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeAvatar() {
+    this.selectedAvatar = null;
+    this.avatarPreview = null;
   }
 
   markAllRead() {

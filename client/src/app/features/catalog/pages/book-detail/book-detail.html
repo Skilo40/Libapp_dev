@@ -81,11 +81,16 @@
           {{ book.availableCopies > 0 ? 'Книга доступна для бронювання' : 'Всі примірники видані' }}
         </div>
 
+        <div class="active-booking-badge" *ngIf="userHasActiveBooking && isLoggedIn">
+          <mat-icon>info</mat-icon>
+          <span>У вас вже є активне бронювання для цієї книги</span>
+        </div>
+
         <div class="actions">
           <button
             mat-flat-button
             color="primary"
-            [disabled]="book.availableCopies === 0 || savingBooking"
+            [disabled]="book.availableCopies === 0 || savingBooking || userHasActiveBooking"
             (click)="onBookingClick()">
             <mat-icon *ngIf="!savingBooking">bookmark_add</mat-icon>
             <mat-spinner *ngIf="savingBooking" diameter="18" />

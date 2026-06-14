@@ -3,6 +3,7 @@ export interface User {
   name: string;
   email: string;
   role: 'admin' | 'librarian' | 'member';
+  avatar?: string; // base64 data URL
   memberId?: string;
   firstName?: string;
   lastName?: string;

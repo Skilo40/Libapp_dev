@@ -7,8 +7,8 @@
     <div class="profile-header">
       <div class="avatar-section">
         <div class="avatar"
-          [style.backgroundImage]="member.avatarUrl ? 'url(' + member.avatarUrl + ')' : 'none'">
-          <mat-icon *ngIf="!member.avatarUrl">account_circle</mat-icon>
+          [style.backgroundImage]="(avatarPreview || member.avatar) ? 'url(' + (avatarPreview || member.avatar) + ')' : 'none'">
+          <mat-icon *ngIf="!avatarPreview && !member.avatar">account_circle</mat-icon>
         </div>
         <div class="profile-title">
           <h1>{{ member.firstName }} {{ member.lastName }}</h1>
@@ -53,10 +53,24 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-2">
-            <mat-label>URL аватару</mat-label>
-            <input matInput formControlName="avatarUrl" placeholder="https://...">
+            <mat-label>Аватар</mat-label>
+            <input matInput disabled 
+              [value]="selectedAvatar?.name || member.avatar ? 'Аватар завантажений' : 'Виберіть файл'">
             <mat-icon matSuffix>image</mat-icon>
           </mat-form-field>
+
+          <input type="file" hidden #fileInput (change)="onAvatarSelected($event)" 
+            accept="image/jpeg,image/png,image/gif,image/webp">
+          
+          <div class="col-2 file-input-group">
+            <button mat-stroked-button type="button" (click)="fileInput.click()">
+              <mat-icon>upload</mat-icon> Вибрати файл
+            </button>
+            <button mat-stroked-button type="button" (click)="removeAvatar()" 
+              *ngIf="selectedAvatar || member.avatar">
+              <mat-icon>close</mat-icon> Видалити
+            </button>
+          </div>
         </div>
 
         <div class="form-actions">

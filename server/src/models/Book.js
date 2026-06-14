@@ -18,11 +18,10 @@ const bookSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Автоматично генеруємо триграми перед збереженням
-bookSchema.pre('save', function (next) {
+bookSchema.pre('save', async function () {
   if (this.isModified('title')) {
     this.trigrams = generateTrigrams(this.title);
   }
-  next();
 });
 
 bookSchema.index({ title: 'text', author: 'text' });

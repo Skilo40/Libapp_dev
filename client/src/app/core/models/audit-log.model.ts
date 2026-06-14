@@ -5,7 +5,14 @@ export interface AuditLog {
   action: string;
   entityType: string;
   entityId: string;
-  performedBy: User;
+  
+  // Додані нові поля для відображення в інтерфейсі
+  entityName?: string; 
+  details?: string;    
+
+  // Зроблено необов'язковим, бо систему (без User) передбачено в HTML
+  performedBy?: User;  
+  
   oldValue?: any;
   newValue?: any;
   ip?: string;

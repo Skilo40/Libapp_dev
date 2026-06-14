@@ -123,3 +123,50 @@ export const returnLoan = async (req, res, next) => {
     next(err);
   }
 };
+
+export const extendLoan = async (req, res, next) => {
+  try {
+    const { days } = req.body;
+    if (!days || days < 1) {
+      return res.status(400).json({ message: 'Вкажіть кількість днів для продовження' });
+    }
+
+    const loan = await Loan.findById(req.params.id).populate('book', 'title');
+    if (!loan) return res.status(404).json({ message: 'Позику не знайдено' });
+    if (loan.status === 'returned') {
+      return res.status(400).json({ message: 'Неможна продовжити повернену позику' });
+    }
+
+    const oldDueDate = new Date(loan.dueDate);
+    const newDueDate = new Date(oldDueDate.getTime() + days * 24 * 60 * 60 * 1000);
+    
+    loan.dueDate = newDueDate;
+    loan.renewalCount = (loan.renewalCount || 0) + 1;
+    await loan.save();
+
+    try {
+      await Notification.create({
+        member: loan.member,
+        title: 'Позику продовжено',
+        text: `Дата повернення книги "${loan.book.title}" продовжена до ${newDueDate.toLocaleDateString('uk-UA')}.`,
+        type: 'loan_extended',
+        isRead: false
+      });
+    } catch (notifErr) {
+      console.error(notifErr);
+    }
+
+    await audit({
+      action: 'LOAN_EXTENDED',
+      entityType: 'loan',
+      entityId: loan._id,
+      performedBy: req.user._id,
+      newValue: { oldDueDate, newDueDate, days, renewalCount: loan.renewalCount },
+      ip: req.ip,
+    });
+
+    res.json({ loan });
+  } catch (err) {
+    next(err);
+  }
+};

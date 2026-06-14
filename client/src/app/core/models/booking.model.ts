@@ -11,6 +11,8 @@ export interface Booking {
   phone?: string;
   status: 'pending' | 'approved' | 'picked_up' | 'rejected' | 'cancelled';
   pickupDeadline?: string;
+  returnDeadline?: string;
+  pickedUpAt?: string;
   notes?: string;
   adminNote?: string;
   createdAt: string;

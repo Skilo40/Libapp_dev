@@ -8,7 +8,7 @@ export interface Member {
   dateOfBirth?: string;
   membershipDate: string;
   isActive: boolean;
-  avatarUrl?: string;
+  avatar?: string; // base64 data URL
   createdAt: string;
 }
 
@@ -18,5 +18,5 @@ export interface MemberRequest {
   email: string;
   phone?: string;
   address?: string;
-  avatarUrl?: string;
+  avatar?: string;
 }

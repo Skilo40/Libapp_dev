@@ -13,7 +13,9 @@ const bookingSchema = new mongoose.Schema({
     default: 'pending',
   },
   pickupDeadline: { type: Date },
+  returnDeadline: { type: Date },
   pickedUpAt: { type: Date },
+  bookingExpiredNotified: { type: Boolean, default: false },
   notes: { type: String },
   adminNote: { type: String },
 }, { timestamps: true });

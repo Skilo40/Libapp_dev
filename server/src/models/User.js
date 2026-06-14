@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ['admin', 'librarian'], default: 'librarian' },
   isActive: { type: Boolean, default: true },
+  avatar: { type: String }, // base64 data URL
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {

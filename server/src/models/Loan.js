@@ -14,6 +14,7 @@ const loanSchema = new mongoose.Schema({
   },
   notificationSentAt: { type: Date, default: null },
   overdueNotified: { type: Boolean, default: false },
+  renewalCount: { type: Number, default: 0 },
   notes: { type: String },
 }, { timestamps: true });
 

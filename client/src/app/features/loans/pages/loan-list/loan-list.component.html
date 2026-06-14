@@ -52,7 +52,10 @@
       </div>
 
       <div class="loan-member">
-        <mat-icon>person</mat-icon>
+        <div class="member-avatar" 
+          [style.backgroundImage]="loan.member.avatar ? 'url(' + loan.member.avatar + ')' : 'none'">
+          <mat-icon *ngIf="!loan.member.avatar">person</mat-icon>
+        </div>
         <div>
           <p class="member-name">{{ loan.member.firstName }} {{ loan.member.lastName }}</p>
           <p class="member-email">{{ loan.member.email }}</p>
@@ -90,6 +93,14 @@
       </div>
 
       <div class="loan-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          *ngIf="loan.status === 'active' || loan.status === 'overdue'"
+          (click)="extendLoan(loan)">
+          <mat-icon>schedule</mat-icon>
+          <span class="btn-label">Продовжити</span>
+        </button>
         <button
           mat-flat-button
           color="primary"

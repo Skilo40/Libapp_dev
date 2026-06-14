@@ -125,7 +125,25 @@
       gap: 8px;
       align-items: center;
 
-      mat-icon { color: var(--text-secondary); flex-shrink: 0; }
+      .member-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        mat-icon {
+          color: var(--text-secondary);
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+      }
 
       .member-name { font-size: 14px; font-weight: 500; }
       .member-email { font-size: 12px; color: var(--text-secondary); }

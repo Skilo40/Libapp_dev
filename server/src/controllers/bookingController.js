@@ -16,6 +16,34 @@ export const createBooking = async (req, res, next) => {
       return res.status(400).json({ message: 'Немає доступних примірників' });
     }
 
+    // Перевірка на існуючі активні бронювання користувача для цієї книги
+    if (memberId) {
+      const existingBooking = await Booking.findOne({
+        book: bookId,
+        member: memberId,
+        status: { $in: ['pending', 'approved'] }
+      });
+      
+      if (existingBooking) {
+        return res.status(400).json({ 
+          message: 'Ви вже маєте активне бронювання для цієї книги' 
+        });
+      }
+    } else {
+      // Для неавторизованих користувачів перевіряємо за email та статусом
+      const existingBooking = await Booking.findOne({
+        book: bookId,
+        email: email,
+        status: { $in: ['pending', 'approved'] }
+      });
+      
+      if (existingBooking) {
+        return res.status(400).json({ 
+          message: 'Ви вже маєте активне бронювання для цієї книги' 
+        });
+      }
+    }
+
     const booking = await Booking.create({
       book: bookId,
       member: memberId || null,
@@ -57,7 +85,7 @@ export const getBookings = async (req, res, next) => {
 
 export const updateBooking = async (req, res, next) => {
   try {
-    const { status, adminNote, pickupDeadline } = req.body;
+    const { status, adminNote, pickupDeadline, returnDeadline } = req.body;
     const booking = await Booking.findById(req.params.id).populate('book', 'title');
     if (!booking) return res.status(404).json({ message: 'Бронювання не знайдено' });
 
@@ -65,6 +93,7 @@ export const updateBooking = async (req, res, next) => {
     booking.status = status;
     if (adminNote) booking.adminNote = adminNote;
     if (pickupDeadline) booking.pickupDeadline = new Date(pickupDeadline);
+    if (returnDeadline) booking.returnDeadline = new Date(returnDeadline);
     if (status === 'picked_up') booking.pickedUpAt = new Date();
     await booking.save();
 
@@ -107,7 +136,7 @@ export const updateBooking = async (req, res, next) => {
       }
 
       if (memberId && req.user) {
-        const dueDate = booking.pickupDeadline || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+        const dueDate = booking.returnDeadline || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
         try {
           const newLoan = await Loan.create({
             book: booking.book._id,
@@ -128,8 +157,11 @@ export const updateBooking = async (req, res, next) => {
       }
     }
 
-    const deadlineStr = pickupDeadline
+    const pickupDeadlineStr = pickupDeadline
       ? new Date(pickupDeadline).toLocaleDateString('uk-UA')
+      : '';
+    const returnDeadlineStr = returnDeadline
+      ? new Date(returnDeadline).toLocaleDateString('uk-UA')
       : '';
 
     if (booking.member) {
@@ -139,7 +171,7 @@ export const updateBooking = async (req, res, next) => {
 
       if (status === 'approved') {
         notifTitle = 'Бронювання схвалено';
-        notifText = `Ваше бронювання книги "${booking.book.title}" схвалено. Заберіть до ${deadlineStr}.`;
+        notifText = `Ваше бронювання книги "${booking.book.title}" схвалено. Заберіть до ${pickupDeadlineStr}, повернути до ${returnDeadlineStr}.`;
         notifType = 'booking_approved';
       } else if (status === 'rejected') {
         notifTitle = 'Бронювання відхилено';
@@ -147,7 +179,7 @@ export const updateBooking = async (req, res, next) => {
         notifType = 'booking_rejected';
       } else if (status === 'picked_up') {
         notifTitle = 'Книгу отримано';
-        notifText = `Підтверджено отримання книги "${booking.book.title}". Дякуємо!`;
+        notifText = `Підтверджено отримання книги "${booking.book.title}". Повернути до ${returnDeadlineStr}.`;
         notifType = 'booking_approved';
       }
 
@@ -167,9 +199,9 @@ export const updateBooking = async (req, res, next) => {
             to: booking.email,
             memberName: `${booking.firstName} ${booking.lastName}`,
             bookTitle: booking.book.title,
-            dueDate: pickupDeadline,
+            dueDate: returnDeadline,
             subject: 'Бронювання схвалено',
-            message: `Ваше бронювання схвалено. Заберіть книгу до ${deadlineStr}.`,
+            message: `Ваше бронювання схвалено. Заберіть книгу до ${pickupDeadlineStr}, повернути до ${returnDeadlineStr}.`,
           });
         } else if (status === 'rejected') {
           await sendReminderEmail({
@@ -191,7 +223,46 @@ export const updateBooking = async (req, res, next) => {
       entityType: 'loan',
       entityId: booking._id,
       performedBy: req.user._id,
-      newValue: { status, adminNote },
+      newValue: { status, adminNote, pickupDeadline, returnDeadline },
+      ip: req.ip,
+    });
+
+    res.json({ booking });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateBookingPickupDate = async (req, res, next) => {
+  try {
+    const { pickupDeadline } = req.body;
+    if (!pickupDeadline) {
+      return res.status(400).json({ message: 'Вкажіть нову дату отримання' });
+    }
+
+    const booking = await Booking.findById(req.params.id).populate('book', 'title');
+    if (!booking) return res.status(404).json({ message: 'Бронювання не знайдено' });
+
+    const oldPickupDeadline = booking.pickupDeadline;
+    booking.pickupDeadline = new Date(pickupDeadline);
+    await booking.save();
+
+    if (booking.member) {
+      await Notification.create({
+        member: booking.member,
+        title: 'Дату отримання змінено',
+        text: `Дата отримання книги "${booking.book.title}" змінена на ${new Date(pickupDeadline).toLocaleDateString('uk-UA')}.`,
+        type: 'booking_updated',
+        isRead: false
+      });
+    }
+
+    await audit({
+      action: 'BOOKING_PICKUP_DATE_UPDATED',
+      entityType: 'booking',
+      entityId: booking._id,
+      performedBy: req.user._id,
+      newValue: { oldPickupDeadline, newPickupDeadline: pickupDeadline },
       ip: req.ip,
     });
 

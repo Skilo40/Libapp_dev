@@ -15,6 +15,10 @@ export class ProfileService {
     return this.api.patch<{ member: Member }>(`/profile/${id}`, data);
   }
 
+  updateWithFile(id: string, formData: FormData) {
+    return this.api.patchWithFile<{ member: Member }>(`/profile/${id}`, formData);
+  }
+
   getLoanHistory(id: string) {
     return this.api.get<{ loans: Loan[] }>(`/profile/${id}/loans`);
   }

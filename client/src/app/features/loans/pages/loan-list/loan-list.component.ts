@@ -58,6 +58,19 @@ export class LoanListComponent implements OnInit {
     });
   }
 
+  extendLoan(loan: Loan) {
+    const days = prompt('Введіть кількість днів для продовження:', '14');
+    if (!days || isNaN(Number(days))) return;
+
+    this.loanService.extend(loan._id, Number(days)).subscribe({
+      next: () => {
+        this.snackBar.open('Позику продовжено', 'OK', { duration: 3000, panelClass: 'success' });
+        this.load();
+      },
+      error: (err) => this.snackBar.open(err.error?.message || 'Помилка', 'OK', { duration: 3000, panelClass: 'error' }),
+    });
+  }
+
   isOverdue(loan: Loan): boolean {
     return loan.status === 'active' && new Date(loan.dueDate) < new Date();
   }

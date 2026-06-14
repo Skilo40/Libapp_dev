@@ -32,6 +32,7 @@ export class BookingsComponent implements OnInit {
   selectedBooking: Booking | null = null;
   adminNote = '';
   pickupDeadline = '';
+  returnDeadline = '';
   processing = false;
 
   constructor(
@@ -71,17 +72,23 @@ export class BookingsComponent implements OnInit {
       this.snackBar.open('Вкажіть дату для отримання книги', 'OK', { duration: 3000 });
       return;
     }
+    if (!this.returnDeadline) {
+      this.snackBar.open('Вкажіть дату для повернення книги', 'OK', { duration: 3000 });
+      return;
+    }
     this.processing = true;
     this.bookingService.update(booking._id, {
       status: 'approved',
       adminNote: this.adminNote,
       pickupDeadline: this.pickupDeadline,
+      returnDeadline: this.returnDeadline,
     }).subscribe({
       next: () => {
         this.processing = false;
         this.selectedBooking = null;
         this.adminNote = '';
         this.pickupDeadline = '';
+        this.returnDeadline = '';
         this.snackBar.open('Бронювання схвалено', 'OK', { duration: 3000, panelClass: 'success' });
         this.load();
       },
@@ -108,6 +115,26 @@ export class BookingsComponent implements OnInit {
       error: () => {
         this.processing = false;
         this.snackBar.open('Помилка', 'OK', { duration: 3000, panelClass: 'error' });
+      },
+    });
+  }
+
+  editPickupDate(booking: Booking) {
+    const newDate = prompt('Введіть нову дату отримання (YYYY-MM-DD):', 
+      new Date(booking.pickupDeadline || new Date()).toISOString().split('T')[0]);
+    
+    if (!newDate) return;
+    
+    this.processing = true;
+    this.bookingService.updatePickupDate(booking._id, newDate).subscribe({
+      next: () => {
+        this.processing = false;
+        this.snackBar.open('Дата отримання оновлена', 'OK', { duration: 3000, panelClass: 'success' });
+        this.load();
+      },
+      error: () => {
+        this.processing = false;
+        this.snackBar.open('Помилка при оновленні дати', 'OK', { duration: 3000, panelClass: 'error' });
       },
     });
   }

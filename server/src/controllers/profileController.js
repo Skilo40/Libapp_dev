@@ -13,10 +13,18 @@ export const getProfile = async (req, res, next) => {
 
 export const updateProfile = async (req, res, next) => {
   try {
-    const { firstName, lastName, phone, address, avatarUrl } = req.body;
+    const { firstName, lastName, phone, address } = req.body;
+    const updateData = { firstName, lastName, phone, address };
+
+    // Якщо завантажений файл аватара
+    if (req.file) {
+      const base64 = req.file.buffer.toString('base64');
+      updateData.avatar = `data:${req.file.mimetype};base64,${base64}`;
+    }
+
     const member = await Member.findByIdAndUpdate(
       req.params.id,
-      { firstName, lastName, phone, address, avatarUrl },
+      updateData,
       { new: true, runValidators: true }
     );
     if (!member) return res.status(404).json({ message: 'Профіль не знайдено' });

@@ -7,13 +7,22 @@
 
   <div class="header-actions">
     <button mat-icon-button [matMenuTriggerFor]="userMenu">
-      <mat-icon>account_circle</mat-icon>
+      <div class="avatar-small" 
+        [style.backgroundImage]="auth.currentUser()?.avatar ? 'url(' + auth.currentUser()?.avatar + ')' : 'none'">
+        <mat-icon *ngIf="!auth.currentUser()?.avatar">account_circle</mat-icon>
+      </div>
     </button>
 
     <mat-menu #userMenu="matMenu">
       <div class="menu-user-info">
-        <strong>{{ auth.currentUser()?.name }}</strong>
-        <span>{{ auth.currentUser()?.email }}</span>
+        <div class="menu-avatar" 
+          [style.backgroundImage]="auth.currentUser()?.avatar ? 'url(' + auth.currentUser()?.avatar + ')' : 'none'">
+          <mat-icon *ngIf="!auth.currentUser()?.avatar">account_circle</mat-icon>
+        </div>
+        <div>
+          <strong>{{ auth.currentUser()?.name }}</strong>
+          <span>{{ auth.currentUser()?.email }}</span>
+        </div>
       </div>
       <button mat-menu-item (click)="auth.logout()">
         <mat-icon>logout</mat-icon>

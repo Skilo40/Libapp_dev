@@ -37,6 +37,7 @@ export class BookDetailComponent implements OnInit {
   showReviewForm = false;
   savingBooking = false;
   savingReview = false;
+  userHasActiveBooking = false;
 
   bookingForm: FormGroup;
   reviewForm: FormGroup;
@@ -78,6 +79,7 @@ export class BookDetailComponent implements OnInit {
         this.similar = res.similar;
         this.loading = false;
         this.prefillBookingForm();
+        this.checkActiveBooking();
       },
       error: () => { this.loading = false; }
     });
@@ -98,6 +100,25 @@ export class BookDetailComponent implements OnInit {
     });
   }
 
+  checkActiveBooking() {
+    const user = this.state.currentUser();
+    if (!user || !this.book || user.role !== 'member') {
+      this.userHasActiveBooking = false;
+      return;
+    }
+
+    this.bookingService.getMemberBookings(user._id).subscribe({
+      next: (res) => {
+        this.userHasActiveBooking = res.bookings.some(b => 
+          (b.book as any)._id === this.book!._id && (b.status === 'pending' || b.status === 'approved')
+        );
+      },
+      error: () => {
+        this.userHasActiveBooking = false;
+      }
+    });
+  }
+
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
@@ -108,6 +129,15 @@ export class BookDetailComponent implements OnInit {
 
   onBookingClick() {
     if (!this.book) return;
+    
+    const user = this.state.currentUser();
+    if (this.isLoggedIn && user?.role === 'member' && this.userHasActiveBooking) {
+      this.snackBar.open('Ви вже маєте активне бронювання для цієї книги', 'OK', {
+        duration: 3000, panelClass: 'error'
+      });
+      return;
+    }
+    
     if (this.isLoggedIn) {
       this.quickBooking();
     } else {
